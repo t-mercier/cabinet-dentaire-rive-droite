@@ -196,66 +196,87 @@ export default function SoinsConservateursPage() {
             </p>
           </div>
           
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {materials.map((material, index) => (
-              <div key={index} className="flex items-start space-x-4 p-4 rounded-lg hover:bg-white hover:shadow-md transition-all duration-200">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-6 h-6 text-green-600" />
+              <Card key={index} className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <CardHeader className="text-center pb-4">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="w-8 h-8 text-green-600" />
                   </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {material.name}
-                    </h3>
-                  </div>
-                  <p className="text-gray-600 text-sm mb-3">
+                  <CardTitle className="text-lg">{material.name}</CardTitle>
+                  <CardDescription className="text-sm">
                     {material.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2 justify-center">
                     {material.advantages.map((advantage, i) => (
                       <span key={i} className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                         {advantage}
                       </span>
                     ))}
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </section>
 
         {/* Prevention Section */}
         <section className="mb-16">
-          <div className="bg-white p-8 rounded-lg shadow-lg">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Prévention et conseils
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Hygiène quotidienne</h3>
-                <ul className="space-y-3">
+            <p className="text-xl text-gray-600">
+              Les bonnes pratiques pour maintenir une santé dentaire optimale
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="text-center pb-4">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-blue-600" />
+                </div>
+                <CardTitle className="text-xl">Hygiène quotidienne</CardTitle>
+                <CardDescription>
+                  Les gestes essentiels à adopter au quotidien
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
                   {prevention.slice(0, 4).map((tip, index) => (
-                    <li key={index} className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-600 mr-3 mt-1 flex-shrink-0" />
-                      <span className="text-gray-700">{tip}</span>
-                    </li>
+                    <div key={index} className="flex items-start">
+                      <CheckCircle className="w-4 h-4 text-green-600 mr-3 mt-1 flex-shrink-0" />
+                      <span className="text-gray-700 text-sm">{tip}</span>
+                    </div>
                   ))}
-                </ul>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Suivi professionnel</h3>
-                <ul className="space-y-3">
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="text-center pb-4">
+                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Shield className="w-8 h-8 text-purple-600" />
+                </div>
+                <CardTitle className="text-xl">Suivi professionnel</CardTitle>
+                <CardDescription>
+                  L'importance des contrôles réguliers
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
                   {prevention.slice(4).map((tip, index) => (
-                    <li key={index} className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-600 mr-3 mt-1 flex-shrink-0" />
-                      <span className="text-gray-700">{tip}</span>
-                    </li>
+                    <div key={index} className="flex items-start">
+                      <CheckCircle className="w-4 h-4 text-green-600 mr-3 mt-1 flex-shrink-0" />
+                      <span className="text-gray-700 text-sm">{tip}</span>
+                    </div>
                   ))}
-                </ul>
-              </div>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </section>
 

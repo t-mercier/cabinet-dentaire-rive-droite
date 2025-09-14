@@ -368,54 +368,79 @@ export default function ProthesesDentairesPage() {
 
         {/* Care Section */}
         <section className="mb-16">
-          <div className="bg-white p-8 rounded-lg shadow-lg">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Entretien et suivi
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Soins quotidiens</h3>
-                <ul className="space-y-2">
-                  <li className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                    <span className="text-gray-700">Brossage 2 fois par jour</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                    <span className="text-gray-700">Nettoyage interdentaire</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                    <span className="text-gray-700">Bains de bouche si recommandés</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                    <span className="text-gray-700">Éviter les aliments trop durs</span>
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Suivi professionnel</h3>
-                <ul className="space-y-2">
-                  <li className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                    <span className="text-gray-700">Contrôles tous les 6 mois</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                    <span className="text-gray-700">Détartrage professionnel</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                    <span className="text-gray-700">Ajustements si nécessaire</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                    <span className="text-gray-700">Maintenance préventive</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
+            <p className="text-xl text-gray-600">
+              Un entretien régulier pour prolonger la durée de vie de vos prothèses
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="text-center pb-4">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-green-600" />
+                </div>
+                <CardTitle className="text-xl">Soins quotidiens</CardTitle>
+                <CardDescription>
+                  Les gestes essentiels pour maintenir vos prothèses en parfait état
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700 text-sm">Brossage 2 fois par jour</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700 text-sm">Nettoyage interdentaire</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700 text-sm">Bains de bouche si recommandés</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700 text-sm">Éviter les aliments trop durs</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="text-center pb-4">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Clock className="w-8 h-8 text-blue-600" />
+                </div>
+                <CardTitle className="text-xl">Suivi professionnel</CardTitle>
+                <CardDescription>
+                  Les rendez-vous réguliers pour un suivi optimal
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700 text-sm">Contrôles tous les 6 mois</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700 text-sm">Détartrage professionnel</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700 text-sm">Ajustements si nécessaire</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700 text-sm">Maintenance préventive</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </section>
 

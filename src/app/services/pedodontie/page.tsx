@@ -233,25 +233,21 @@ export default function PedodontiePage() {
             </p>
           </div>
           
-          <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {ageGroups.map((group, index) => (
-              <div key={index} className="flex items-start space-x-6 p-6 rounded-lg hover:bg-white hover:shadow-md transition-all duration-200">
-                <div className="flex-shrink-0">
-                  <div className="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center">
+              <Card key={index} className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <CardHeader className="text-center pb-4">
+                  <div className="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl font-bold text-pink-600">{group.age}</span>
                   </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="mb-3">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      {group.title}
-                    </h3>
-                    <p className="text-gray-600 text-sm">
-                      {group.description}
-                    </p>
-                  </div>
+                  <CardTitle className="text-lg">{group.title}</CardTitle>
+                  <CardDescription className="text-sm">
+                    {group.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-3">Recommandations :</h4>
+                    <h4 className="font-semibold text-gray-900 mb-3 text-center">Recommandations :</h4>
                     <div className="space-y-2">
                       {group.recommendations.map((rec, i) => (
                         <div key={i} className="flex items-start">
@@ -261,8 +257,8 @@ export default function PedodontiePage() {
                       ))}
                     </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </section>

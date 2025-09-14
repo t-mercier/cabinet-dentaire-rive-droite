@@ -304,68 +304,70 @@ export default function ImplantologiePage() {
             </p>
           </div>
           
-          <div className="space-y-8">
-            <div className="flex items-start space-x-6 p-6 rounded-lg hover:bg-white hover:shadow-md transition-all duration-200">
-              <div className="flex-shrink-0">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="text-center pb-4">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="w-8 h-8 text-green-600" />
                 </div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                  Soins quotidiens
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <CardTitle className="text-xl">Soins quotidiens</CardTitle>
+                <CardDescription>
+                  Les gestes essentiels pour maintenir vos implants en parfait état
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
                   <div className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Brossage 2 fois par jour</span>
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Brossage 2 fois par jour</span>
                   </div>
                   <div className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Utilisation du fil dentaire</span>
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Utilisation du fil dentaire</span>
                   </div>
                   <div className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Bains de bouche antiseptiques</span>
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Bains de bouche antiseptiques</span>
                   </div>
                   <div className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Éviter le tabac</span>
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Éviter le tabac</span>
                   </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
             
-            <div className="flex items-start space-x-6 p-6 rounded-lg hover:bg-white hover:shadow-md transition-all duration-200">
-              <div className="flex-shrink-0">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="text-center pb-4">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Clock className="w-8 h-8 text-blue-600" />
                 </div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                  Suivi médical
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <CardTitle className="text-xl">Suivi médical</CardTitle>
+                <CardDescription>
+                  Les rendez-vous réguliers pour un suivi optimal
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
                   <div className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Contrôles tous les 6 mois</span>
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Contrôles tous les 6 mois</span>
                   </div>
                   <div className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Détartrage professionnel</span>
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Détartrage professionnel</span>
                   </div>
                   <div className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Radiographies de contrôle</span>
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Radiographies de contrôle</span>
                   </div>
                   <div className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Maintenance préventive</span>
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Maintenance préventive</span>
                   </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </section>
 

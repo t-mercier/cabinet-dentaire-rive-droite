@@ -274,16 +274,17 @@ export default function BlanchimentPage() {
 
         {/* Process Section */}
         <section className="mb-16">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Déroulement du traitement
-            </h2>
-            <p className="text-xl text-gray-600">
-              Un processus simple et efficace pour un sourire éclatant
-            </p>
-          </div>
-          
-          <div className="relative">
+          <div className="bg-gradient-to-br from-blue-50 to-yellow-50 p-8 rounded-lg shadow-lg">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                Déroulement du traitement
+              </h2>
+              <p className="text-xl text-gray-600">
+                Un processus simple et efficace pour un sourire éclatant
+              </p>
+            </div>
+            
+            <div className="relative">
             {/* Mobile: Vertical timeline */}
             <div className="lg:hidden space-y-6">
               {process.map((step, index) => {
@@ -345,39 +346,65 @@ export default function BlanchimentPage() {
                 })}
               </div>
             </div>
+            </div>
           </div>
         </section>
 
         {/* Maintenance Section */}
         <section className="mb-16">
-          <div className="bg-white p-8 rounded-lg shadow-lg">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Entretien et maintenance
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Après le traitement</h3>
-                <ul className="space-y-2">
+            <p className="text-xl text-gray-600">
+              Comment maintenir votre sourire éclatant dans le temps
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="text-center pb-4">
+                <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-yellow-600" />
+                </div>
+                <CardTitle className="text-xl">Après le traitement</CardTitle>
+                <CardDescription>
+                  Les premiers gestes à adopter immédiatement
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
                   {maintenance.slice(0, 4).map((tip, index) => (
-                    <li key={index} className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-600 mr-3 mt-1 flex-shrink-0" />
-                      <span className="text-gray-700">{tip}</span>
-                    </li>
+                    <div key={index} className="flex items-start">
+                      <CheckCircle className="w-4 h-4 text-green-600 mr-3 mt-1 flex-shrink-0" />
+                      <span className="text-gray-700 text-sm">{tip}</span>
+                    </div>
                   ))}
-                </ul>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">À long terme</h3>
-                <ul className="space-y-2">
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="text-center pb-4">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Clock className="w-8 h-8 text-green-600" />
+                </div>
+                <CardTitle className="text-xl">À long terme</CardTitle>
+                <CardDescription>
+                  Les habitudes à adopter pour maintenir l'effet
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
                   {maintenance.slice(4).map((tip, index) => (
-                    <li key={index} className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-600 mr-3 mt-1 flex-shrink-0" />
-                      <span className="text-gray-700">{tip}</span>
-                    </li>
+                    <div key={index} className="flex items-start">
+                      <CheckCircle className="w-4 h-4 text-green-600 mr-3 mt-1 flex-shrink-0" />
+                      <span className="text-gray-700 text-sm">{tip}</span>
+                    </div>
                   ))}
-                </ul>
-              </div>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </section>
 
