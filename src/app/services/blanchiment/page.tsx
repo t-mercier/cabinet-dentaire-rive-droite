@@ -9,7 +9,10 @@ import {
   Shield,
   CheckCircle,
   Clock,
-  Zap
+  Zap,
+  Search,
+  Sparkles,
+  Heart
 } from 'lucide-react'
 
 const methods = [
@@ -53,6 +56,33 @@ const contraindications = [
   'Maladies parodontales actives',
   'Hypersensibilité dentinaire sévère',
   'Dents avec restaurations importantes'
+]
+
+const process = [
+  {
+    step: '1',
+    title: 'Consultation',
+    description: 'Examen de vos dents et évaluation de l\'éligibilité au traitement',
+    icon: Search,
+    color: 'bg-blue-100 text-blue-600',
+    duration: '30 min'
+  },
+  {
+    step: '2',
+    title: 'Traitement',
+    description: 'Application du produit blanchissant selon la méthode choisie',
+    icon: Sparkles,
+    color: 'bg-yellow-100 text-yellow-600',
+    duration: '1-2h'
+  },
+  {
+    step: '3',
+    title: 'Suivi',
+    description: 'Contrôle des résultats et conseils pour maintenir l\'effet',
+    icon: Heart,
+    color: 'bg-green-100 text-green-600',
+    duration: '15 min'
+  }
 ]
 
 const maintenance = [
@@ -244,37 +274,75 @@ export default function BlanchimentPage() {
 
         {/* Process Section */}
         <section className="mb-16">
-          <div className="bg-white p-8 rounded-lg shadow-lg">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Déroulement du traitement
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl font-bold text-blue-600">1</span>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Consultation</h3>
-                <p className="text-gray-600">
-                  Examen de vos dents et évaluation de l'éligibilité au traitement
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl font-bold text-blue-600">2</span>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Traitement</h3>
-                <p className="text-gray-600">
-                  Application du produit blanchissant selon la méthode choisie
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl font-bold text-blue-600">3</span>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Suivi</h3>
-                <p className="text-gray-600">
-                  Contrôle des résultats et conseils pour maintenir l'effet
-                </p>
+            <p className="text-xl text-gray-600">
+              Un processus simple et efficace pour un sourire éclatant
+            </p>
+          </div>
+          
+          <div className="relative">
+            {/* Mobile: Vertical timeline */}
+            <div className="lg:hidden space-y-6">
+              {process.map((step, index) => {
+                return (
+                  <div key={index} className="flex items-start space-x-4">
+                    <div className={`w-12 h-12 ${step.color} rounded-full flex items-center justify-center shadow-lg flex-shrink-0`}>
+                      <span className="text-lg font-bold text-white">{step.step}</span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                          {step.duration}
+                        </span>
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                        {step.title}
+                      </h3>
+                      <p className="text-gray-600 text-sm">
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Desktop: Horizontal timeline */}
+            <div className="hidden lg:block">
+              {/* Timeline line - horizontal */}
+              <div className="absolute top-8 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-200 via-yellow-200 to-green-200"></div>
+              
+              <div className="grid lg:grid-cols-3 gap-4">
+                {process.map((step, index) => {
+                  return (
+                    <div key={index} className="relative">
+                      {/* Timeline dot */}
+                      <div className="relative z-10 flex flex-col items-center">
+                        <div className={`w-16 h-16 ${step.color} rounded-full flex items-center justify-center shadow-lg mb-4`}>
+                          <span className="text-2xl font-bold text-white">{step.step}</span>
+                        </div>
+                        
+                        {/* Content */}
+                        <div className="text-center">
+                          <div className="flex items-center justify-center space-x-2 mb-2">
+                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                              {step.duration}
+                            </span>
+                          </div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            {step.title}
+                          </h3>
+                          <p className="text-gray-600 text-sm leading-relaxed">
+                            {step.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           </div>
@@ -362,7 +430,7 @@ export default function BlanchimentPage() {
                   Prendre rendez-vous
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
+              <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-blue-50 border-white">
                 <Link href="/contact">
                   <Calendar className="w-5 h-5 mr-2" />
                   Demander un devis

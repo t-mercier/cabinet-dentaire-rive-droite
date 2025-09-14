@@ -9,7 +9,12 @@ import {
   ArrowLeft,
   Clock,
   Award,
-  Users
+  Users,
+  Search,
+  Scissors,
+  Zap,
+  Heart,
+  Crown
 } from 'lucide-react'
 
 const benefits = [
@@ -39,27 +44,42 @@ const process = [
   {
     step: '1',
     title: 'Consultation et planification',
-    description: 'Examen clinique, radiographies et plan de traitement personnalisé'
+    description: 'Examen clinique, radiographies et plan de traitement personnalisé',
+    icon: Search,
+    color: 'bg-blue-100 text-blue-600',
+    duration: '30-45 min'
   },
   {
     step: '2',
     title: 'Préparation chirurgicale',
-    description: 'Extraction si nécessaire et préparation du site d\'implantation'
+    description: 'Extraction si nécessaire et préparation du site d\'implantation',
+    icon: Scissors,
+    color: 'bg-orange-100 text-orange-600',
+    duration: '1-2h'
   },
   {
     step: '3',
     title: 'Pose de l\'implant',
-    description: 'Insertion de la vis en titane dans l\'os maxillaire'
+    description: 'Insertion de la vis en titane dans l\'os maxillaire',
+    icon: Zap,
+    color: 'bg-green-100 text-green-600',
+    duration: '1h'
   },
   {
     step: '4',
     title: 'Ostéointégration',
-    description: 'Période de cicatrisation de 3 à 6 mois'
+    description: 'Période de cicatrisation de 3 à 6 mois',
+    icon: Heart,
+    color: 'bg-purple-100 text-purple-600',
+    duration: '3-6 mois'
   },
   {
     step: '5',
     title: 'Pose de la couronne',
-    description: 'Fabrication et mise en place de la prothèse définitive'
+    description: 'Fabrication et mise en place de la prothèse définitive',
+    icon: Crown,
+    color: 'bg-yellow-100 text-yellow-600',
+    duration: '2-3h'
   }
 ]
 
@@ -167,18 +187,68 @@ export default function ImplantologiePage() {
             </p>
           </div>
           
-          <div className="space-y-8">
-            {process.map((step, index) => (
-              <div key={index} className="flex items-start">
-                <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-6 flex-shrink-0">
-                  {step.step}
-                </div>
-                <div className="bg-white p-6 rounded-lg shadow-sm flex-1">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{step.title}</h3>
-                  <p className="text-gray-600">{step.description}</p>
-                </div>
+          <div className="relative">
+            {/* Mobile: Vertical timeline */}
+            <div className="lg:hidden space-y-6">
+              {process.map((step, index) => {
+                return (
+                  <div key={index} className="flex items-start space-x-4">
+                    <div className={`w-12 h-12 ${step.color} rounded-full flex items-center justify-center shadow-lg flex-shrink-0`}>
+                      <span className="text-lg font-bold text-white">{step.step}</span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                          {step.duration}
+                        </span>
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                        {step.title}
+                      </h3>
+                      <p className="text-gray-600 text-sm">
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Desktop: Horizontal timeline */}
+            <div className="hidden lg:block">
+              {/* Timeline line - horizontal */}
+              <div className="absolute top-8 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-200 via-green-200 to-yellow-200"></div>
+              
+              <div className="grid lg:grid-cols-5 gap-4">
+                {process.map((step, index) => {
+                  return (
+                    <div key={index} className="relative">
+                      {/* Timeline dot */}
+                      <div className="relative z-10 flex flex-col items-center">
+                        <div className={`w-16 h-16 ${step.color} rounded-full flex items-center justify-center shadow-lg mb-4`}>
+                          <span className="text-2xl font-bold text-white">{step.step}</span>
+                        </div>
+                        
+                        {/* Content */}
+                        <div className="text-center">
+                          <div className="flex items-center justify-center space-x-2 mb-2">
+                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                              {step.duration}
+                            </span>
+                          </div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            {step.title}
+                          </h3>
+                          <p className="text-gray-600 text-sm leading-relaxed">
+                            {step.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
-            ))}
+            </div>
           </div>
         </section>
 
@@ -225,52 +295,75 @@ export default function ImplantologiePage() {
 
         {/* Care Section */}
         <section className="mb-16">
-          <div className="bg-white p-8 rounded-lg shadow-lg">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Entretien et suivi
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Soins quotidiens</h3>
-                <ul className="space-y-2">
-                  <li className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                    <span className="text-gray-700">Brossage 2 fois par jour</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                    <span className="text-gray-700">Utilisation du fil dentaire</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                    <span className="text-gray-700">Bains de bouche antiseptiques</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                    <span className="text-gray-700">Éviter le tabac</span>
-                  </li>
-                </ul>
+            <p className="text-xl text-gray-600">
+              Un suivi régulier pour assurer la longévité de vos implants
+            </p>
+          </div>
+          
+          <div className="space-y-8">
+            <div className="flex items-start space-x-6 p-6 rounded-lg hover:bg-white hover:shadow-md transition-all duration-200">
+              <div className="flex-shrink-0">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-8 h-8 text-green-600" />
+                </div>
               </div>
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Suivi médical</h3>
-                <ul className="space-y-2">
-                  <li className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                    <span className="text-gray-700">Contrôles tous les 6 mois</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                    <span className="text-gray-700">Détartrage professionnel</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                    <span className="text-gray-700">Radiographies de contrôle</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                    <span className="text-gray-700">Maintenance préventive</span>
-                  </li>
-                </ul>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                  Soins quotidiens
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">Brossage 2 fois par jour</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">Utilisation du fil dentaire</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">Bains de bouche antiseptiques</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">Éviter le tabac</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-start space-x-6 p-6 rounded-lg hover:bg-white hover:shadow-md transition-all duration-200">
+              <div className="flex-shrink-0">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Clock className="w-8 h-8 text-blue-600" />
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                  Suivi médical
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">Contrôles tous les 6 mois</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">Détartrage professionnel</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">Radiographies de contrôle</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">Maintenance préventive</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -293,7 +386,7 @@ export default function ImplantologiePage() {
                   Prendre rendez-vous
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
+              <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-blue-50 border-white">
                 <Link href="/contact">
                   <Calendar className="w-5 h-5 mr-2" />
                   Demander un devis

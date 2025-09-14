@@ -8,7 +8,15 @@ import {
   CheckCircle, 
   Phone, 
   Calendar,
-  ArrowLeft
+  ArrowLeft,
+  Cigarette,
+  Activity,
+  Brain,
+  Pill,
+  Dna,
+  Utensils,
+  Zap,
+  AlignCenter
 } from 'lucide-react'
 
 const stages = [
@@ -39,14 +47,54 @@ const stages = [
 ]
 
 const riskFactors = [
-  'Tabagisme',
-  'Diabète non contrôlé',
-  'Stress chronique',
-  'Médicaments (certains antihypertenseurs)',
-  'Facteurs génétiques',
-  'Malnutrition',
-  'Bruxisme',
-  'Malocclusion'
+  {
+    name: 'Tabagisme',
+    description: 'Le tabac réduit la circulation sanguine et affaiblit le système immunitaire',
+    icon: Cigarette,
+    color: 'bg-red-100 text-red-600'
+  },
+  {
+    name: 'Diabète non contrôlé',
+    description: 'Le diabète altère la cicatrisation et augmente l\'inflammation',
+    icon: Activity,
+    color: 'bg-orange-100 text-orange-600'
+  },
+  {
+    name: 'Stress chronique',
+    description: 'Le stress affaiblit les défenses immunitaires et favorise l\'inflammation',
+    icon: Brain,
+    color: 'bg-purple-100 text-purple-600'
+  },
+  {
+    name: 'Médicaments',
+    description: 'Certains médicaments peuvent causer une hypertrophie gingivale',
+    icon: Pill,
+    color: 'bg-blue-100 text-blue-600'
+  },
+  {
+    name: 'Facteurs génétiques',
+    description: 'Prédisposition familiale aux maladies parodontales',
+    icon: Dna,
+    color: 'bg-green-100 text-green-600'
+  },
+  {
+    name: 'Malnutrition',
+    description: 'Carences en vitamines C et D, calcium, affectent la santé parodontale',
+    icon: Utensils,
+    color: 'bg-yellow-100 text-yellow-600'
+  },
+  {
+    name: 'Bruxisme',
+    description: 'Le grincement des dents surcharge les tissus de soutien',
+    icon: Zap,
+    color: 'bg-indigo-100 text-indigo-600'
+  },
+  {
+    name: 'Malocclusion',
+    description: 'Mauvais alignement dentaire créant des forces anormales',
+    icon: AlignCenter,
+    color: 'bg-pink-100 text-pink-600'
+  }
 ]
 
 const treatments = [
@@ -211,12 +259,25 @@ export default function ParodontologiePage() {
             </p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {riskFactors.map((factor, index) => (
-              <div key={index} className="bg-white p-4 rounded-lg shadow-sm border text-center">
-                <p className="text-sm font-medium text-gray-900">{factor}</p>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {riskFactors.map((factor, index) => {
+              const IconComponent = factor.icon
+              return (
+                <Card key={index} className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                  <CardContent className="p-6 text-center">
+                    <div className={`w-16 h-16 ${factor.color} rounded-full flex items-center justify-center mx-auto mb-4`}>
+                      <IconComponent className="w-8 h-8" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      {factor.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {factor.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         </section>
 
@@ -320,7 +381,7 @@ export default function ParodontologiePage() {
                   Prendre rendez-vous
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
+              <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-blue-50 border-white">
                 <Link href="/contact">
                   <Calendar className="w-5 h-5 mr-2" />
                   Demander un devis

@@ -9,35 +9,44 @@ import {
   Shield,
   CheckCircle,
   Clock,
-  Award
+  Award,
+  Search,
+  Scissors,
+  Zap,
+  Heart,
+  Crown,
+  Building,
+  Link as LinkIcon,
+  User,
+  Anchor
 } from 'lucide-react'
 
 const prostheses = [
   {
     name: 'Couronnes',
     description: 'Restauration d\'une dent endommagée avec une coiffe en céramique',
-    icon: Shield,
+    icon: Crown,
     duration: '2-3 semaines',
     advantages: ['Esthétique parfaite', 'Durabilité', 'Fonctionnalité restaurée']
   },
   {
     name: 'Bridges',
     description: 'Remplacement de dents manquantes en s\'appuyant sur les dents adjacentes',
-    icon: CheckCircle,
+    icon: LinkIcon,
     duration: '2-3 semaines',
     advantages: ['Solution fixe', 'Esthétique', 'Mastication normale']
   },
   {
     name: 'Prothèses amovibles',
     description: 'Prothèses partielles ou complètes amovibles',
-    icon: Clock,
+    icon: User,
     duration: '3-4 semaines',
     advantages: ['Économique', 'Facile à entretenir', 'Solution rapide']
   },
   {
     name: 'Prothèses sur implants',
     description: 'Prothèses fixes ou amovibles stabilisées par des implants',
-    icon: Award,
+    icon: Anchor,
     duration: '3-6 mois',
     advantages: ['Stabilité maximale', 'Confort optimal', 'Durabilité']
   }
@@ -65,27 +74,42 @@ const process = [
   {
     step: '1',
     title: 'Consultation et planification',
-    description: 'Examen clinique et radiographique, choix du type de prothèse'
+    description: 'Examen clinique et radiographique, choix du type de prothèse',
+    icon: Search,
+    color: 'bg-blue-100 text-blue-600',
+    duration: '30-45 min'
   },
   {
     step: '2',
     title: 'Préparation des dents',
-    description: 'Préparation des dents supports et prise d\'empreintes'
+    description: 'Préparation des dents supports et prise d\'empreintes',
+    icon: Scissors,
+    color: 'bg-orange-100 text-orange-600',
+    duration: '1-2h'
   },
   {
     step: '3',
     title: 'Fabrication en laboratoire',
-    description: 'Réalisation de la prothèse par notre prothésiste dentaire'
+    description: 'Réalisation de la prothèse par notre prothésiste dentaire',
+    icon: Zap,
+    color: 'bg-green-100 text-green-600',
+    duration: '2-3 semaines'
   },
   {
     step: '4',
     title: 'Essayage et ajustements',
-    description: 'Mise en place et ajustements pour un confort optimal'
+    description: 'Mise en place et ajustements pour un confort optimal',
+    icon: Heart,
+    color: 'bg-purple-100 text-purple-600',
+    duration: '1h'
   },
   {
     step: '5',
     title: 'Pose définitive',
-    description: 'Cimentation ou fixation définitive de la prothèse'
+    description: 'Cimentation ou fixation définitive de la prothèse',
+    icon: Crown,
+    color: 'bg-yellow-100 text-yellow-600',
+    duration: '1h'
   }
 ]
 
@@ -236,25 +260,32 @@ export default function ProthesesDentairesPage() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="space-y-6">
             {materials.map((material, index) => (
-              <Card key={index} className="text-center">
-                <CardHeader>
-                  <CardTitle className="text-xl">{material.name}</CardTitle>
-                  <CardDescription>{material.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-gray-900 mb-3">Propriétés :</h4>
+              <div key={index} className="flex items-start space-x-4 p-4 rounded-lg hover:bg-white hover:shadow-md transition-all duration-200">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-6 h-6 text-blue-600" />
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {material.name}
+                    </h3>
+                  </div>
+                  <p className="text-gray-600 text-sm mb-3">
+                    {material.description}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
                     {material.properties.map((property, i) => (
-                      <div key={i} className="flex items-center justify-center">
-                        <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                        <span className="text-sm text-gray-700">{property}</span>
-                      </div>
+                      <span key={i} className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                        {property}
+                      </span>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
         </section>
@@ -270,18 +301,68 @@ export default function ProthesesDentairesPage() {
             </p>
           </div>
           
-          <div className="space-y-8">
-            {process.map((step, index) => (
-              <div key={index} className="flex items-start">
-                <div className="w-12 h-12 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-6 flex-shrink-0">
-                  {step.step}
-                </div>
-                <div className="bg-white p-6 rounded-lg shadow-sm flex-1">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{step.title}</h3>
-                  <p className="text-gray-600">{step.description}</p>
-                </div>
+          <div className="relative">
+            {/* Mobile: Vertical timeline */}
+            <div className="lg:hidden space-y-6">
+              {process.map((step, index) => {
+                return (
+                  <div key={index} className="flex items-start space-x-4">
+                    <div className={`w-12 h-12 ${step.color} rounded-full flex items-center justify-center shadow-lg flex-shrink-0`}>
+                      <span className="text-lg font-bold text-white">{step.step}</span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                          {step.duration}
+                        </span>
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                        {step.title}
+                      </h3>
+                      <p className="text-gray-600 text-sm">
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Desktop: Horizontal timeline */}
+            <div className="hidden lg:block">
+              {/* Timeline line - horizontal */}
+              <div className="absolute top-8 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-200 via-green-200 to-yellow-200"></div>
+              
+              <div className="grid lg:grid-cols-5 gap-4">
+                {process.map((step, index) => {
+                  return (
+                    <div key={index} className="relative">
+                      {/* Timeline dot */}
+                      <div className="relative z-10 flex flex-col items-center">
+                        <div className={`w-16 h-16 ${step.color} rounded-full flex items-center justify-center shadow-lg mb-4`}>
+                          <span className="text-2xl font-bold text-white">{step.step}</span>
+                        </div>
+                        
+                        {/* Content */}
+                        <div className="text-center">
+                          <div className="flex items-center justify-center space-x-2 mb-2">
+                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                              {step.duration}
+                            </span>
+                          </div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            {step.title}
+                          </h3>
+                          <p className="text-gray-600 text-sm leading-relaxed">
+                            {step.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
-            ))}
+            </div>
           </div>
         </section>
 
@@ -355,7 +436,7 @@ export default function ProthesesDentairesPage() {
                   Prendre rendez-vous
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
+              <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-blue-50 border-white">
                 <Link href="/contact">
                   <Calendar className="w-5 h-5 mr-2" />
                   Demander un devis

@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState } from 'react'
 import { Menu, X, Phone, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -26,12 +27,13 @@ export default function Header() {
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center">
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3">
-                <span className="text-white font-bold text-sm">CD</span>
-              </div>
-              <span className="text-xl font-bold text-gray-900">
-                Cabinet Dentaire Rive Droite
-              </span>
+              <Image
+                src="/logo.png"
+                alt="Cabinet Dentaire Rive Droite"
+                width={200}
+                height={80}
+                className="h-12 w-auto"
+              />
             </Link>
           </div>
 
@@ -44,14 +46,14 @@ export default function Header() {
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger>Services</NavigationMenuTrigger>
+                  <NavigationMenuTrigger className="hover:!bg-blue-50 hover:!text-blue-600 focus:!bg-blue-50 focus:!text-blue-600 data-[state=open]:!bg-blue-50 data-[state=open]:!text-blue-600">Services</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <div className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                       {services.map((service) => (
                         <NavigationMenuLink key={service.name} asChild>
                           <Link
                             href={service.href}
-                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-blue-50 hover:text-blue-600 focus:bg-blue-50 focus:text-blue-600"
                           >
                             <div className="text-sm font-medium leading-none">{service.name}</div>
                           </Link>
@@ -77,7 +79,7 @@ export default function Header() {
               <Phone className="w-4 h-4 mr-1" />
               <span>05.56.86.29.00</span>
             </div>
-            <Button asChild>
+            <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
               <Link href="/patient-portal">
                 <User className="w-4 h-4 mr-2" />
                 Espace Patient

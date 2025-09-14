@@ -233,28 +233,36 @@ export default function PedodontiePage() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="space-y-8">
             {ageGroups.map((group, index) => (
-              <Card key={index} className="text-center">
-                <CardHeader>
-                  <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div key={index} className="flex items-start space-x-6 p-6 rounded-lg hover:bg-white hover:shadow-md transition-all duration-200">
+                <div className="flex-shrink-0">
+                  <div className="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center">
                     <span className="text-2xl font-bold text-pink-600">{group.age}</span>
                   </div>
-                  <CardTitle className="text-xl">{group.title}</CardTitle>
-                  <CardDescription>{group.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-gray-900 mb-3">Recommandations :</h4>
-                    {group.recommendations.map((rec, i) => (
-                      <div key={i} className="flex items-start">
-                        <CheckCircle className="w-4 h-4 text-green-600 mr-2 mt-1 flex-shrink-0" />
-                        <span className="text-sm text-gray-700">{rec}</span>
-                      </div>
-                    ))}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="mb-3">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      {group.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm">
+                      {group.description}
+                    </p>
                   </div>
-                </CardContent>
-              </Card>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-3">Recommandations :</h4>
+                    <div className="space-y-2">
+                      {group.recommendations.map((rec, i) => (
+                        <div key={i} className="flex items-start">
+                          <CheckCircle className="w-4 h-4 text-green-600 mr-2 mt-1 flex-shrink-0" />
+                          <span className="text-sm text-gray-700">{rec}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </section>
@@ -374,7 +382,7 @@ export default function PedodontiePage() {
                   Prendre rendez-vous
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
+              <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-blue-50 border-white">
                 <Link href="/contact">
                   <Calendar className="w-5 h-5 mr-2" />
                   Demander un devis
