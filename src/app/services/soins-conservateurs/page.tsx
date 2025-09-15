@@ -187,28 +187,28 @@ export default function SoinsConservateursPage() {
 
         {/* Materials Section */}
         <section className="mb-16">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Matériaux utilisés
-            </h2>
-            <p className="text-xl text-gray-600">
-              Des matériaux de qualité pour des résultats durables
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {materials.map((material, index) => (
-              <Card key={index} className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                <CardHeader className="text-center pb-4">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle className="w-8 h-8 text-green-600" />
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 p-8 rounded-lg">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                Matériaux utilisés
+              </h2>
+              <p className="text-xl text-gray-600">
+                Des matériaux de qualité pour des résultats durables
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {materials.map((material, index) => (
+                <div key={index} className="bg-white p-6 rounded-lg">
+                  <div className="text-center pb-4">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle className="w-8 h-8 text-green-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{material.name}</h3>
+                    <p className="text-sm text-gray-600 mb-4">
+                      {material.description}
+                    </p>
                   </div>
-                  <CardTitle className="text-lg">{material.name}</CardTitle>
-                  <CardDescription className="text-sm">
-                    {material.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
                   <div className="flex flex-wrap gap-2 justify-center">
                     {material.advantages.map((advantage, i) => (
                       <span key={i} className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
@@ -216,9 +216,9 @@ export default function SoinsConservateursPage() {
                       </span>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -247,8 +247,8 @@ export default function SoinsConservateursPage() {
               <CardContent>
                 <div className="space-y-3">
                   {prevention.slice(0, 4).map((tip, index) => (
-                    <div key={index} className="flex items-start">
-                      <CheckCircle className="w-4 h-4 text-green-600 mr-3 mt-1 flex-shrink-0" />
+                    <div key={index} className="flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                       <span className="text-gray-700 text-sm">{tip}</span>
                     </div>
                   ))}
@@ -269,8 +269,8 @@ export default function SoinsConservateursPage() {
               <CardContent>
                 <div className="space-y-3">
                   {prevention.slice(4).map((tip, index) => (
-                    <div key={index} className="flex items-start">
-                      <CheckCircle className="w-4 h-4 text-green-600 mr-3 mt-1 flex-shrink-0" />
+                    <div key={index} className="flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                       <span className="text-gray-700 text-sm">{tip}</span>
                     </div>
                   ))}

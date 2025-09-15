@@ -274,7 +274,7 @@ export default function BlanchimentPage() {
 
         {/* Process Section */}
         <section className="mb-16">
-          <div className="bg-gradient-to-br from-blue-50 to-yellow-50 p-8 rounded-lg shadow-lg">
+          <div className="bg-gradient-to-br from-blue-50 to-yellow-50 p-8 rounded-lg">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-gray-900 mb-4">
                 Déroulement du traitement
@@ -375,8 +375,8 @@ export default function BlanchimentPage() {
               <CardContent>
                 <div className="space-y-3">
                   {maintenance.slice(0, 4).map((tip, index) => (
-                    <div key={index} className="flex items-start">
-                      <CheckCircle className="w-4 h-4 text-green-600 mr-3 mt-1 flex-shrink-0" />
+                    <div key={index} className="flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                       <span className="text-gray-700 text-sm">{tip}</span>
                     </div>
                   ))}
@@ -397,8 +397,8 @@ export default function BlanchimentPage() {
               <CardContent>
                 <div className="space-y-3">
                   {maintenance.slice(4).map((tip, index) => (
-                    <div key={index} className="flex items-start">
-                      <CheckCircle className="w-4 h-4 text-green-600 mr-3 mt-1 flex-shrink-0" />
+                    <div key={index} className="flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                       <span className="text-gray-700 text-sm">{tip}</span>
                     </div>
                   ))}

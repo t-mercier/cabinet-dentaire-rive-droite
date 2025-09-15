@@ -178,16 +178,17 @@ export default function ImplantologiePage() {
 
         {/* Process Section */}
         <section className="mb-16">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Le processus d'implantation
-            </h2>
-            <p className="text-xl text-gray-600">
-              Un traitement en plusieurs étapes pour un résultat optimal
-            </p>
-          </div>
-          
-          <div className="relative">
+          <div className="bg-gradient-to-r from-blue-50 to-green-50 p-8 rounded-lg">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                Le processus d'implantation
+              </h2>
+              <p className="text-xl text-gray-600">
+                Un traitement en plusieurs étapes pour un résultat optimal
+              </p>
+            </div>
+            
+            <div className="relative">
             {/* Mobile: Vertical timeline */}
             <div className="lg:hidden space-y-6">
               {process.map((step, index) => {
@@ -248,6 +249,7 @@ export default function ImplantologiePage() {
                   )
                 })}
               </div>
+            </div>
             </div>
           </div>
         </section>
@@ -317,19 +319,19 @@ export default function ImplantologiePage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                     <span className="text-gray-700">Brossage 2 fois par jour</span>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                     <span className="text-gray-700">Utilisation du fil dentaire</span>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                     <span className="text-gray-700">Bains de bouche antiseptiques</span>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                     <span className="text-gray-700">Éviter le tabac</span>
                   </div>
@@ -349,19 +351,19 @@ export default function ImplantologiePage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                     <span className="text-gray-700">Contrôles tous les 6 mois</span>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                     <span className="text-gray-700">Détartrage professionnel</span>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                     <span className="text-gray-700">Radiographies de contrôle</span>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                     <span className="text-gray-700">Maintenance préventive</span>
                   </div>

@@ -224,42 +224,42 @@ export default function PedodontiePage() {
 
         {/* Age Groups Section */}
         <section className="mb-16">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Soins par âge
-            </h2>
-            <p className="text-xl text-gray-600">
-              Un suivi adapté à chaque étape du développement
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {ageGroups.map((group, index) => (
-              <Card key={index} className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                <CardHeader className="text-center pb-4">
-                  <div className="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl font-bold text-pink-600">{group.age}</span>
+          <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-8 rounded-lg">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                Soins par âge
+              </h2>
+              <p className="text-xl text-gray-600">
+                Un suivi adapté à chaque étape du développement
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {ageGroups.map((group, index) => (
+                <div key={index} className="bg-white p-6 rounded-lg">
+                  <div className="text-center pb-4">
+                    <div className="mb-4">
+                      <span className="text-3xl font-bold text-pink-600">{group.age}</span>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{group.title}</h3>
+                    <p className="text-sm text-gray-600 mb-4">
+                      {group.description}
+                    </p>
                   </div>
-                  <CardTitle className="text-lg">{group.title}</CardTitle>
-                  <CardDescription className="text-sm">
-                    {group.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-3 text-center">Recommandations :</h4>
                     <div className="space-y-2">
                       {group.recommendations.map((rec, i) => (
-                        <div key={i} className="flex items-start">
-                          <CheckCircle className="w-4 h-4 text-green-600 mr-2 mt-1 flex-shrink-0" />
+                        <div key={i} className="flex items-center justify-center">
+                          <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
                           <span className="text-sm text-gray-700">{rec}</span>
                         </div>
                       ))}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 

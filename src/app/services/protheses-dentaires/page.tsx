@@ -18,7 +18,10 @@ import {
   Building,
   Link as LinkIcon,
   User,
-  Anchor
+  Anchor,
+  Gem,
+  Layers,
+  Wrench
 } from 'lucide-react'
 
 const prostheses = [
@@ -56,17 +59,23 @@ const materials = [
   {
     name: 'Céramique',
     description: 'Matériau esthétique de choix pour les couronnes et bridges',
-    properties: ['Esthétique parfaite', 'Biocompatible', 'Résistant']
+    properties: ['Esthétique parfaite', 'Biocompatible', 'Résistant'],
+    icon: Gem,
+    color: 'bg-blue-100 text-blue-600'
   },
   {
     name: 'Zircone',
     description: 'Céramique haute performance très résistante',
-    properties: ['Très résistant', 'Esthétique', 'Biocompatible']
+    properties: ['Très résistant', 'Esthétique', 'Biocompatible'],
+    icon: Layers,
+    color: 'bg-green-100 text-green-600'
   },
   {
     name: 'Métal-céramique',
     description: 'Alliance de la résistance métallique et de l\'esthétique céramique',
-    properties: ['Très résistant', 'Durable', 'Esthétique']
+    properties: ['Très résistant', 'Durable', 'Esthétique'],
+    icon: Wrench,
+    color: 'bg-purple-100 text-purple-600'
   }
 ]
 
@@ -251,42 +260,41 @@ export default function ProthesesDentairesPage() {
 
         {/* Materials Section */}
         <section className="mb-16">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Matériaux utilisés
-            </h2>
-            <p className="text-xl text-gray-600">
-              Des matériaux de qualité pour des résultats durables
-            </p>
-          </div>
-          
-          <div className="space-y-6">
-            {materials.map((material, index) => (
-              <div key={index} className="flex items-start space-x-4 p-4 rounded-lg hover:bg-white hover:shadow-md transition-all duration-200">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-6 h-6 text-blue-600" />
+          <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-8 rounded-lg">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                Matériaux utilisés
+              </h2>
+              <p className="text-xl text-gray-600">
+                Des matériaux de qualité pour des résultats durables
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {materials.map((material, index) => {
+                const IconComponent = material.icon
+                return (
+                  <div key={index} className="bg-white p-6 rounded-lg">
+                    <div className="text-center pb-4">
+                      <div className="mb-4">
+                        <IconComponent className="w-8 h-8 mx-auto text-gray-600" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">{material.name}</h3>
+                      <p className="text-sm text-gray-600 mb-4">
+                        {material.description}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {material.properties.map((property, i) => (
+                        <span key={i} className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                          {property}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {material.name}
-                    </h3>
-                  </div>
-                  <p className="text-gray-600 text-sm mb-3">
-                    {material.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {material.properties.map((property, i) => (
-                      <span key={i} className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                        {property}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
+                )
+              })}
+            </div>
           </div>
         </section>
 
@@ -390,19 +398,19 @@ export default function ProthesesDentairesPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                     <span className="text-gray-700 text-sm">Brossage 2 fois par jour</span>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                     <span className="text-gray-700 text-sm">Nettoyage interdentaire</span>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                     <span className="text-gray-700 text-sm">Bains de bouche si recommandés</span>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                     <span className="text-gray-700 text-sm">Éviter les aliments trop durs</span>
                   </div>
@@ -422,19 +430,19 @@ export default function ProthesesDentairesPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                     <span className="text-gray-700 text-sm">Contrôles tous les 6 mois</span>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                     <span className="text-gray-700 text-sm">Détartrage professionnel</span>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                     <span className="text-gray-700 text-sm">Ajustements si nécessaire</span>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
                     <span className="text-gray-700 text-sm">Maintenance préventive</span>
                   </div>

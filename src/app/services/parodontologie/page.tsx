@@ -283,30 +283,32 @@ export default function ParodontologiePage() {
 
         {/* Treatments Section */}
         <section className="mb-16">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Nos traitements
-            </h2>
-            <p className="text-xl text-gray-600">
-              Des solutions adaptées à chaque stade de la maladie
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {treatments.map((treatment, index) => {
-              const IconComponent = treatment.icon
-              return (
-                <Card key={index} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                      <IconComponent className="w-6 h-6 text-blue-600" />
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-8 rounded-lg">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                Nos traitements
+              </h2>
+              <p className="text-xl text-gray-600">
+                Des solutions adaptées à chaque stade de la maladie
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {treatments.map((treatment, index) => {
+                const IconComponent = treatment.icon
+                return (
+                  <div key={index} className="bg-white p-6 rounded-lg">
+                    <div className="mb-4">
+                      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <IconComponent className="w-6 h-6 text-blue-600" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">{treatment.name}</h3>
+                      <p className="text-gray-600">{treatment.description}</p>
                     </div>
-                    <CardTitle className="text-xl">{treatment.name}</CardTitle>
-                    <CardDescription>{treatment.description}</CardDescription>
-                  </CardHeader>
-                </Card>
-              )
-            })}
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </section>
 
