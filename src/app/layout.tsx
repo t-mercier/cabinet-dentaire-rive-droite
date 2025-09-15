@@ -5,7 +5,7 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import ChatWidget from "@/components/chat-widget";
 import { Toaster } from "@/components/ui/sonner";
-import { ClerkProvider } from '@clerk/nextjs';
+// import { ClerkProvider } from '@clerk/nextjs';
 
 const inter = Inter({
   subsets: ["latin"],
@@ -30,37 +30,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-  
-  if (!clerkPublishableKey || clerkPublishableKey.includes('dummy')) {
-    return (
-      <html lang="fr" className={inter.variable}>
-        <body className="font-sans antialiased">
-          <Header />
-          <main className="min-h-screen">
-            {children}
-          </main>
-          <Footer />
-          <ChatWidget />
-          <Toaster />
-        </body>
-      </html>
-    );
-  }
-
   return (
-    <ClerkProvider>
-      <html lang="fr" className={inter.variable}>
-        <body className="font-sans antialiased">
-          <Header />
-          <main className="min-h-screen">
-            {children}
-          </main>
-          <Footer />
-          <ChatWidget />
-          <Toaster />
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="fr" className={inter.variable}>
+      <body className="font-sans antialiased">
+        <Header />
+        <main className="min-h-screen">
+          {children}
+        </main>
+        <Footer />
+        <ChatWidget />
+        <Toaster />
+      </body>
+    </html>
   );
 }
