@@ -29,38 +29,36 @@ export default function ContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Prise de rendez-vous */}
           <div>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">Prendre rendez-vous</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="text-center p-6 bg-blue-50 rounded-lg">
-                  <Phone className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <div className="bg-blue-600 rounded-lg p-8 text-white">
+              <h2 className="text-2xl font-bold mb-6 text-center">Prendre rendez-vous</h2>
+              <div className="space-y-6">
+                <div className="text-center p-6 bg-white/10 rounded-lg">
+                  <Phone className="w-12 h-12 text-white mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-white mb-2">
                     Appelez-nous directement
                   </h3>
-                  <p className="text-3xl font-bold text-blue-600 mb-2">
+                  <p className="text-3xl font-bold text-white mb-2">
                     05.56.86.29.00
                   </p>
-                  <p className="text-gray-600">
+                  <p className="text-blue-100">
                     Du lundi au vendredi de 9h à 19h30
                   </p>
                 </div>
                 
-                <div className="text-center p-6 bg-gray-50 rounded-lg">
-                  <Mail className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <div className="text-center p-6 bg-white/10 rounded-lg">
+                  <Mail className="w-12 h-12 text-white mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-white mb-2">
                     Ou envoyez-nous un email
                   </h3>
-                  <p className="text-lg text-blue-600 mb-2">
+                  <p className="text-lg text-white mb-2">
                     cabinetdentaireaces@gmail.com
                   </p>
-                  <p className="text-gray-600">
+                  <p className="text-blue-100">
                     Nous vous répondrons rapidement
                   </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
           {/* Contact Information */}
@@ -118,29 +116,6 @@ export default function ContactPage() {
             </Card>
 
 
-            {/* Map */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">Nous trouver</CardTitle>
-                <CardDescription>
-                  Situé au cœur de Floirac, facilement accessible en voiture et en transport en commun
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="bg-gray-200 h-64 rounded-lg flex items-center justify-center">
-                  <div className="text-center text-gray-500">
-                    <MapPin className="w-12 h-12 mx-auto mb-2" />
-                    <p>Carte Google Maps</p>
-                    <p className="text-sm">69 cours Gambetta, 33270 Floirac</p>
-                  </div>
-                </div>
-                <div className="mt-4 space-y-2 text-sm text-gray-600">
-                  <p><strong>Accès en voiture :</strong> Parking disponible à proximité</p>
-                  <p><strong>Transport en commun :</strong> Ligne de bus 15, arrêt Gambetta</p>
-                  <p><strong>Métro :</strong> Ligne A, station Floirac Dravemont (10 min à pied)</p>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>
