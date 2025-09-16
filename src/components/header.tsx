@@ -79,12 +79,6 @@ export default function Header() {
               <Phone className="w-4 h-4 mr-1" />
               <span>05.56.86.29.00</span>
             </div>
-            <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
-              <Link href="/patient-portal">
-                <User className="w-4 h-4 mr-2" />
-                Espace Patient
-              </Link>
-            </Button>
           </div>
 
           {/* Mobile menu button */}
@@ -141,13 +135,6 @@ export default function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contact
-              </Link>
-              <Link
-                href="/patient-portal"
-                className="block px-3 py-2 text-gray-700 hover:text-blue-600 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Espace Patient
               </Link>
             </div>
           </div>
