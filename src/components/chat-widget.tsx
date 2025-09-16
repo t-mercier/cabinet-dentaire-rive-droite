@@ -66,11 +66,23 @@ export default function ChatWidget() {
     // Ajouter le message utilisateur
     addMessage('user', userMessage)
     
+    // Vérifier si c'est une urgence
+    const isEmergency = userMessage.toLowerCase().includes('urgence') || 
+                       userMessage.toLowerCase().includes('douleur') || 
+                       userMessage.toLowerCase().includes('mal') ||
+                       userMessage.toLowerCase().includes('urgent') ||
+                       userMessage.toLowerCase().includes('détartrage') ||
+                       userMessage.toLowerCase().includes('rendez-vous')
+    
     // Simuler la frappe de l'assistant
     setIsTyping(true)
     
     setTimeout(() => {
-      addMessage('assistant', 'Parfait ! Pour que notre équipe puisse vous répondre rapidement, pourriez-vous me donner votre nom, votre email et votre question ?')
+      if (isEmergency) {
+        addMessage('assistant', '🚨 Je comprends que c\'est urgent ! Pour une prise en charge rapide, je vais vous rediriger directement vers notre équipe. Veuillez me donner votre nom, email et décrivez votre urgence.')
+      } else {
+        addMessage('assistant', 'Parfait ! Pour que notre équipe puisse vous répondre rapidement, pourriez-vous me donner votre nom, votre email et votre question ?')
+      }
       setIsTyping(false)
       setShowContactForm(true)
     }, 1000)
@@ -83,17 +95,28 @@ export default function ChatWidget() {
     setIsSubmitting(true)
 
     try {
+      // Détecter si c'est une urgence
+      const isEmergency = contactData.question.toLowerCase().includes('urgence') || 
+                         contactData.question.toLowerCase().includes('douleur') || 
+                         contactData.question.toLowerCase().includes('mal') ||
+                         contactData.question.toLowerCase().includes('urgent') ||
+                         contactData.question.toLowerCase().includes('détartrage') ||
+                         contactData.question.toLowerCase().includes('rendez-vous')
+
       // Créer le lien mailto avec le message formaté
-      const subject = encodeURIComponent('Question depuis le site web')
+      const subject = isEmergency 
+        ? encodeURIComponent('🚨 URGENCE - Demande de rendez-vous')
+        : encodeURIComponent('Question depuis le site web')
+      
       const body = encodeURIComponent(`
 Bonjour,
 
-Vous avez reçu une nouvelle question depuis le site web :
+${isEmergency ? '🚨 URGENCE - ' : ''}Vous avez reçu une nouvelle ${isEmergency ? 'demande de rendez-vous' : 'question'} depuis le site web :
 
 Nom : ${contactData.name}
 Email : ${contactData.email}
 
-Question :
+${isEmergency ? 'Urgence :' : 'Question :'}
 ${contactData.question}
 
 ---
@@ -109,7 +132,11 @@ Message envoyé depuis cabinetdentairerivedroite.com
       setTimeout(() => {
         setIsSubmitted(true)
         setIsSubmitting(false)
-        addMessage('assistant', 'Parfait ! Votre message a été envoyé. Notre équipe vous répondra dès que possible. Merci de votre confiance ! 😊')
+        if (isEmergency) {
+          addMessage('assistant', '🚨 Urgence transmise ! Notre équipe vous contactera en priorité dans les plus brefs délais. En cas d\'urgence extrême, appelez-nous au 05.56.86.29.00')
+        } else {
+          addMessage('assistant', 'Parfait ! Votre message a été envoyé. Notre équipe vous répondra dès que possible. Merci de votre confiance ! 😊')
+        }
       }, 1000)
 
     } catch (error) {
