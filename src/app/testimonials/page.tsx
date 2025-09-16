@@ -140,9 +140,9 @@ export default function TestimonialsPage() {
           try {
             const parsed = JSON.parse(savedTestimonials)
             setLocalTestimonials(parsed)
-          } catch (e) {
-            console.error('Erreur lors du chargement depuis localStorage:', e)
-          }
+               } catch (localStorageError) {
+                 console.error('Erreur lors du chargement depuis localStorage:', localStorageError)
+               }
         }
       }
     }

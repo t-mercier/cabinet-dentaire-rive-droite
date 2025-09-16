@@ -25,6 +25,10 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Vérifier la connexion à la base de données
+    console.log('DATABASE_URL present:', !!process.env.DATABASE_URL)
+    console.log('DATABASE_URL starts with:', process.env.DATABASE_URL?.substring(0, 20))
+    
     const body = await request.json()
     const { name, rating, content, service } = body
 
@@ -40,6 +44,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'La note doit être comprise entre 1 et 5' },
         { status: 400 }
+      )
+    }
+
+    // Test de connexion à la base de données
+    try {
+      await db.$connect()
+      console.log('Database connection successful')
+    } catch (dbError) {
+      console.error('Database connection failed:', dbError)
+      return NextResponse.json(
+        { error: 'Erreur de connexion à la base de données' },
+        { status: 500 }
       )
     }
 
@@ -67,6 +83,12 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error processing testimonial:', error)
+    console.error('Error details:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : String(error),
+      code: (error as any)?.code || 'Unknown',
+      meta: (error as any)?.meta || 'Unknown'
+    })
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }
