@@ -1,91 +1,146 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { 
   Phone, 
   Mail, 
   MapPin, 
-  Clock
+  Clock,
+  Calendar,
+  MessageCircle
 } from 'lucide-react'
 
 export default function ContactPage() {
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-green-600/10"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
               Contactez-nous
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Prenez rendez-vous ou posez-nous vos questions. Notre équipe est là 
               pour vous accompagner dans vos soins dentaires.
             </p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-gradient-to-r from-blue-50 to-green-50 p-8 rounded-lg">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+      {/* Contact Methods */}
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Prendre rendez-vous
             </h2>
-            <p className="text-xl text-gray-600">
-              Contactez-nous pour planifier votre consultation
+            <p className="text-lg text-gray-600">
+              Choisissez le moyen qui vous convient le mieux
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
             {/* Téléphone */}
-            <div className="text-center p-6">
-              <Phone className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Appelez-nous directement
-              </h3>
-              <p className="text-3xl font-bold text-blue-600 mb-2">
-                05.56.86.29.00
-              </p>
-              <p className="text-gray-600">
-                Du lundi au vendredi de 9h à 19h30
-              </p>
-            </div>
-            
-            {/* Email */}
-            <div className="text-center p-6">
-              <Mail className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Ou envoyez-nous un email
-              </h3>
-              <p className="text-lg text-blue-600 mb-2">
-                cabinetdentaireaces@gmail.com
-              </p>
-              <p className="text-gray-600">
-                Nous vous répondrons rapidement
-              </p>
-            </div>
+            <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
+              <CardContent className="p-8">
+                <div className="flex items-start space-x-6">
+                  <div className="flex-shrink-0">
+                    <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                      <Phone className="w-8 h-8 text-blue-600" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                      Appelez-nous
+                    </h3>
+                    <p className="text-3xl font-bold text-blue-600 mb-3">
+                      05.56.86.29.00
+                    </p>
+                    <p className="text-gray-600 mb-4">
+                      Du lundi au vendredi de 9h à 19h30
+                    </p>
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                      <Phone className="w-4 h-4 mr-2" />
+                      Appeler maintenant
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-            {/* Informations pratiques */}
-            <div className="text-center p-6">
-              <MapPin className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Informations pratiques
-              </h3>
-              <div className="text-gray-600 space-y-2">
-                <p className="font-medium">Adresse</p>
-                <p className="text-sm">
-                  69 cours Gambetta<br />
-                  33270 Floirac, Bordeaux
-                </p>
-                <p className="font-medium mt-4">Horaires</p>
-                <p className="text-sm">
-                  Lun-Ven : 9h-12h30 / 14h-19h30
-                </p>
-              </div>
-            </div>
+            {/* Email */}
+            <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
+              <CardContent className="p-8">
+                <div className="flex items-start space-x-6">
+                  <div className="flex-shrink-0">
+                    <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center group-hover:bg-green-200 transition-colors">
+                      <Mail className="w-8 h-8 text-green-600" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                      Envoyez un email
+                    </h3>
+                    <p className="text-lg text-green-600 mb-3 break-all">
+                      cabinetdentaireaces@gmail.com
+                    </p>
+                    <p className="text-gray-600 mb-4">
+                      Nous vous répondrons rapidement
+                    </p>
+                    <Button className="bg-green-600 hover:bg-green-700 text-white">
+                      <Mail className="w-4 h-4 mr-2" />
+                      Envoyer un email
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
+
+          {/* Informations pratiques */}
+          <Card className="border-0 bg-white/80 backdrop-blur-sm">
+            <CardContent className="p-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                      <MapPin className="w-6 h-6 text-purple-600" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      Adresse
+                    </h3>
+                    <p className="text-gray-600">
+                      69 cours Gambetta<br />
+                      33270 Floirac, Bordeaux
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                      <Clock className="w-6 h-6 text-orange-600" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      Horaires d'ouverture
+                    </h3>
+                    <p className="text-gray-600">
+                      Lundi - Vendredi<br />
+                      09:00 - 12:30 / 14:00 - 19:30
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-      </div>
+      </section>
     </div>
   )
 }
