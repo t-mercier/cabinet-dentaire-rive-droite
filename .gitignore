@@ -43,3 +43,9 @@ next-env.d.ts
 /src/generated/prisma
 
 README.md
+DATABASE_SETUP.md
+DEPLOYMENT.md
+*.md
+scripts/deploy.sh
+scripts/setup-database.sh
+scripts/build-db-url.js
