@@ -151,7 +151,7 @@ export default function Home() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="text-center">
-                    <Link href={service.href} className={`font-medium hover:underline ${service.iconColor}`}>
+                    <Link href={service.href} className={`font-medium hover:font-bold transition-all ${service.iconColor}`}>
                       En savoir plus
                     </Link>
                   </CardContent>
