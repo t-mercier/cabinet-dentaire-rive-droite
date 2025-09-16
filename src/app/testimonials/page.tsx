@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { 
@@ -16,7 +16,7 @@ const testimonials = [
     id: 1,
     name: 'Marie L.',
     rating: 5,
-    content: 'Excellent accueil et soins de qualité. Le Dr. Martin est très professionnel et à l\'écoute. Je recommande vivement ce cabinet.',
+    content: 'Excellent accueil et soins de qualité. Détartrage parfait et l\'équipe a très bien soigné les caries de mes enfants. L\'équipe est très professionnelle et à l\'écoute. Je recommande vivement ce cabinet.',
     service: 'Soins Conservateurs',
     date: '2024-01-15'
   },
@@ -24,7 +24,7 @@ const testimonials = [
     id: 2,
     name: 'Jean-Pierre D.',
     rating: 5,
-    content: 'Cabinet moderne et équipe très compétente. Les soins d\'implantologie ont été parfaitement réalisés. Je suis très satisfait du résultat.',
+    content: 'Cabinet moderne et équipe ultra compétente. Les soins d\'implantologie ont été parfaitement réalisés. Je suis très satisfait du résultat.',
     service: 'Implantologie',
     date: '2024-01-10'
   },
@@ -35,6 +35,14 @@ const testimonials = [
     content: 'Très satisfaite de mes soins d\'implantologie. L\'équipe est à l\'écoute et le résultat est parfait. Je recommande sans hésitation.',
     service: 'Implantologie',
     date: '2024-01-08'
+  },
+  {
+    id: 9,
+    name: 'Catherine L.',
+    rating: 5,
+    content: 'Le Dr Mercier m\'a posé un implant dentaire la semaine dernière, il a pris le temps de m\'expliquer chaque étape de façon très claire, et m\'a rassurée tout au long du processus. Un processus très bien organisé et un résultat parfait ! Merci beaucoup !',
+    service: 'Implantologie',
+    date: '2024-01-12'
   },
   {
     id: 4,
@@ -48,7 +56,7 @@ const testimonials = [
     id: 5,
     name: 'Claire T.',
     rating: 5,
-    content: 'Soins pédodontiques parfaits pour mes enfants. L\'approche bienveillante a permis de rassurer mes petits. Je recommande !',
+    content: 'Une service pédodontique chaleureux et vraiment bienveillant. Parfait pour mes enfants. Je recommande !',
     service: 'Pédodontie',
     date: '2024-01-03'
   },
@@ -56,7 +64,7 @@ const testimonials = [
     id: 6,
     name: 'Michel B.',
     rating: 5,
-    content: 'Prothèses dentaires de très bonne qualité. Le laboratoire intégré permet un suivi optimal. Très satisfait du résultat.',
+    content: 'Prothèses dentaires de très bonne qualité. Le laboratoire intégré permet un suivi optimal, et un confort optimal. Très satisfait du résultat.',
     service: 'Prothèses Dentaires',
     date: '2023-12-28'
   },
@@ -69,10 +77,18 @@ const testimonials = [
     date: '2023-12-25'
   },
   {
+    id: 10,
+    name: 'François M.',
+    rating: 5,
+    content: 'Le Dr Mercier a été exceptionnel lors de ma consultation d\'implantologie. Il a prit le temps de m\'expliquer chaque détail de la procédure, les risques et les bénéfices. Sa patience et son écoute m\'ont complètement rassuré. Un praticien à l\'écoute et très humain !',
+    service: 'Implantologie',
+    date: '2024-01-18'
+  },
+  {
     id: 8,
     name: 'Antoine F.',
     rating: 5,
-    content: 'Cabinet très bien équipé et personnel compétent. Les soins conservateurs ont été réalisés avec soin. Je recommande !',
+    content: 'Cabinet très bien équipé et personnel compétent. Les carries ont été traitées avec soin, et sans douleur! Merci pour tout!',
     service: 'Soins Conservateurs',
     date: '2023-12-20'
   }
@@ -83,6 +99,7 @@ const services = ['Tous', 'Implantologie', 'Parodontologie', 'Soins Conservateur
 export default function TestimonialsPage() {
   const [selectedService, setSelectedService] = useState('Tous')
   const [showAddForm, setShowAddForm] = useState(false)
+  const [localTestimonials, setLocalTestimonials] = useState(testimonials)
   const [newTestimonial, setNewTestimonial] = useState({
     name: '',
     rating: 5,
@@ -90,19 +107,77 @@ export default function TestimonialsPage() {
     service: ''
   })
 
+  // Charger les témoignages depuis la base de données au montage du composant
+  useEffect(() => {
+    const loadTestimonials = async () => {
+      try {
+        const response = await fetch('/api/testimonials')
+        if (response.ok) {
+          const dbTestimonials = await response.json()
+          // Convertir le format de la base de données vers le format d'affichage
+          const formattedTestimonials = dbTestimonials.map((t: { id: string; patientName: string; rating: number; content: string; service: string; createdAt: string }) => ({
+            id: t.id,
+            name: t.patientName,
+            rating: t.rating,
+            content: t.content,
+            service: t.service || 'Général',
+            date: new Date(t.createdAt).toISOString().split('T')[0]
+          }))
+          setLocalTestimonials(formattedTestimonials)
+        } else {
+          // Fallback vers localStorage si l'API échoue
+          const savedTestimonials = localStorage.getItem('testimonials')
+          if (savedTestimonials) {
+            const parsed = JSON.parse(savedTestimonials)
+            setLocalTestimonials(parsed)
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des témoignages:', error)
+        // Fallback vers localStorage
+        const savedTestimonials = localStorage.getItem('testimonials')
+        if (savedTestimonials) {
+          try {
+            const parsed = JSON.parse(savedTestimonials)
+            setLocalTestimonials(parsed)
+          } catch (e) {
+            console.error('Erreur lors du chargement depuis localStorage:', e)
+          }
+        }
+      }
+    }
+
+    loadTestimonials()
+  }, [])
+
+  // Sauvegarder les témoignages dans localStorage à chaque changement
+  useEffect(() => {
+    localStorage.setItem('testimonials', JSON.stringify(localTestimonials))
+  }, [localTestimonials])
+
+  // Fonction pour réinitialiser les témoignages (utile pour les tests)
+  const resetTestimonials = () => {
+    setLocalTestimonials(testimonials)
+    localStorage.removeItem('testimonials')
+    toast.success('Témoignages réinitialisés')
+  }
+
   const filteredTestimonials = selectedService === 'Tous' 
-    ? testimonials 
-    : testimonials.filter(t => t.service === selectedService)
+    ? localTestimonials 
+    : localTestimonials.filter(t => t.service === selectedService)
 
   const handleAddTestimonial = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!newTestimonial.name || !newTestimonial.content || !newTestimonial.service) {
-      toast.error('Veuillez remplir tous les champs')
+    if (!newTestimonial.content || !newTestimonial.service) {
+      toast.error('Veuillez remplir tous les champs obligatoires')
       return
     }
 
     try {
+      console.log('Envoi du témoignage:', newTestimonial)
+      
+      // Envoyer à l'API qui sauvegarde en base de données
       const response = await fetch('/api/testimonials', {
         method: 'POST',
         headers: {
@@ -111,15 +186,44 @@ export default function TestimonialsPage() {
         body: JSON.stringify(newTestimonial),
       })
 
+      console.log('Réponse API:', response.status, response.statusText)
+
       if (response.ok) {
+        const result = await response.json()
+        console.log('Résultat API:', result)
+        
+        // Ajouter le témoignage à la liste locale pour l'affichage immédiat
+        const newTestimonialData = {
+          id: result.id || Date.now(),
+          name: newTestimonial.name || 'Anonyme',
+          rating: newTestimonial.rating,
+          content: newTestimonial.content,
+          service: newTestimonial.service,
+          date: new Date().toISOString().split('T')[0]
+        }
+        
+        setLocalTestimonials(prev => [newTestimonialData, ...prev])
+        
         toast.success('Témoignage envoyé avec succès ! Il sera publié après validation.')
         setNewTestimonial({ name: '', rating: 5, content: '', service: '' })
         setShowAddForm(false)
       } else {
-        toast.error('Erreur lors de l\'envoi du témoignage')
+        const errorText = await response.text()
+        console.error('Erreur API:', response.status, errorText)
+        let errorMessage = 'Erreur lors de l\'envoi du témoignage'
+        
+        try {
+          const error = JSON.parse(errorText)
+          errorMessage = error.error || errorMessage
+        } catch (e) {
+          errorMessage = errorText || errorMessage
+        }
+        
+        toast.error(errorMessage)
       }
     } catch (error) {
-      toast.error('Erreur lors de l\'envoi du témoignage')
+      console.error('Erreur réseau:', error)
+      toast.error('Erreur de connexion. Vérifiez votre connexion internet.')
     }
   }
 
@@ -146,7 +250,7 @@ export default function TestimonialsPage() {
           <Card className="text-center">
             <CardContent className="pt-6">
               <div className="text-3xl font-bold text-blue-600 mb-2">
-                {testimonials.length}
+                {localTestimonials.length}
               </div>
               <p className="text-gray-600">Témoignages</p>
             </CardContent>
@@ -186,13 +290,24 @@ export default function TestimonialsPage() {
               ))}
             </div>
           </div>
-          <Button 
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="bg-green-600 hover:bg-green-700"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Ajouter un témoignage
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Ajouter un témoignage
+            </Button>
+            {process.env.NODE_ENV === 'development' && (
+              <Button 
+                onClick={resetTestimonials}
+                variant="outline"
+                size="sm"
+              >
+                Reset (dev)
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Add Testimonial Form */}

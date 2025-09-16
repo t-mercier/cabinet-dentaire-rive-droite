@@ -4,9 +4,10 @@ import { db } from '@/lib/db'
 export async function GET() {
   try {
     const testimonials = await db.testimonial.findMany({
-      where: {
-        isApproved: true
-      },
+      // Pour le moment, on affiche tous les témoignages (même non approuvés)
+      // where: {
+      //   isApproved: true
+      // },
       orderBy: {
         createdAt: 'desc'
       }
@@ -48,6 +49,7 @@ export async function POST(request: NextRequest) {
         patientName: name || 'Anonyme',
         rating,
         content,
+        service: service || 'Général',
         isApproved: false // Will be approved by admin
       }
     })

@@ -4,11 +4,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { 
   Calendar, 
-  User, 
-  Shield, 
-  Heart, 
-  Smile, 
-  Baby, 
   Star, 
   Phone, 
   MapPin,
@@ -77,7 +72,7 @@ const testimonials = [
   {
     name: 'Marie L.',
     rating: 5,
-    content: 'Excellent accueil et soins de qualité. Le Dr. Martin est très professionnel et à l\'écoute.'
+    content: 'Excellent accueil et soins de qualité. L\'équipe est très professionnelle et à l\'écoute.'
   },
   {
     name: 'Jean-Pierre D.',
@@ -88,6 +83,11 @@ const testimonials = [
     name: 'Sophie M.',
     rating: 5,
     content: 'Très satisfaite de mes soins d\'implantologie. Résultat parfait !'
+  },
+  {
+    name: 'Catherine L.',
+    rating: 5,
+    content: 'Le Dr Mercier a posé un implant parfaitement. Il m\'a expliqué chaque étape et m\'a rassurée. Excellent !'
   }
 ]
 
