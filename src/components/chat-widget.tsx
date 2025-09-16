@@ -47,57 +47,14 @@ export default function ChatWidget() {
     setMessages(prev => [...prev, newMessage])
   }
 
-  const getAssistantResponse = (userMessage: string): string => {
-    const message = userMessage.toLowerCase()
-    
-    // Salutations
-    if (message.includes('bonjour') || message.includes('salut') || message.includes('hello')) {
-      return 'Bonjour ! 😊 Je suis ravi de vous accueillir. Que puis-je faire pour vous aujourd\'hui ?'
-    }
-    
-    // Rendez-vous
-    if (message.includes('rendez-vous') || message.includes('rdv') || message.includes('appointment')) {
-      return 'Pour prendre rendez-vous, vous pouvez nous appeler au 📞 **05.56.86.29.00** ou nous envoyer un email à **cabinetdentaireaces@gmail.com**. Nous vous répondrons rapidement !'
-    }
-    
-    // Horaires
-    if (message.includes('horaire') || message.includes('ouvert') || message.includes('fermé')) {
-      return 'Nos horaires d\'ouverture :\n\n🕐 **Lundi au Vendredi** : 8h30 - 19h00\n🕐 **Samedi** : 8h30 - 12h30\n🕐 **Dimanche** : Fermé\n\nNous sommes situés au **123 Avenue de la Rive Droite, 33000 Bordeaux**'
-    }
-    
-    // Services
-    if (message.includes('service') || message.includes('soin') || message.includes('traitement')) {
-      return 'Nous proposons de nombreux services :\n\n🦷 **Implantologie**\n🦷 **Parodontologie**\n🦷 **Soins Conservateurs**\n🦷 **Prothèses Dentaires**\n🦷 **Blanchiment**\n🦷 **Pédodontie**\n\nVoulez-vous plus d\'informations sur un service particulier ?'
-    }
-    
-    // Urgences
-    if (message.includes('urgence') || message.includes('douleur') || message.includes('mal')) {
-      return '🚨 **En cas d\'urgence dentaire**, appelez-nous immédiatement au **05.56.86.29.00**. Nous avons des créneaux d\'urgence disponibles. Si c\'est en dehors des horaires, laissez un message et nous vous rappellerons rapidement.'
-    }
-    
-    // Prix/tarifs
-    if (message.includes('prix') || message.includes('tarif') || message.includes('coût') || message.includes('combien')) {
-      return 'Les tarifs varient selon le traitement. Pour un devis personnalisé, je vous invite à nous contacter au **05.56.86.29.00** ou par email à **cabinetdentaireaces@gmail.com**. Nous vous fournirons un devis détaillé et transparent.'
-    }
-    
-    // Contact
-    if (message.includes('contact') || message.includes('adresse') || message.includes('téléphone')) {
-      return '📞 **Téléphone** : 05.56.86.29.00\n📧 **Email** : cabinetdentaireaces@gmail.com\n📍 **Adresse** : 123 Avenue de la Rive Droite, 33000 Bordeaux\n\nN\'hésitez pas à nous contacter pour toute question !'
-    }
-    
-    // Assurance/mutuelle
-    if (message.includes('assurance') || message.includes('mutuelle') || message.includes('remboursement')) {
-      return 'Nous acceptons la plupart des mutuelles et assurances. Pour connaître votre prise en charge, contactez votre mutuelle ou appelez-nous au **05.56.86.29.00**. Nous vous aiderons à optimiser vos remboursements.'
-    }
-    
-    // Questions générales
-    if (message.includes('merci') || message.includes('thanks')) {
-      return 'De rien ! 😊 N\'hésitez pas si vous avez d\'autres questions. Je suis là pour vous aider !'
-    }
-    
-    // Réponse par défaut
-    return 'Merci pour votre question ! Pour une réponse personnalisée, je vous invite à nous contacter directement :\n\n📞 **Téléphone** : 05.56.86.29.00\n📧 **Email** : cabinetdentaireaces@gmail.com\n\nNotre équipe vous répondra rapidement avec des informations précises !'
-  }
+  const [showContactForm, setShowContactForm] = useState(false)
+  const [contactData, setContactData] = useState({
+    name: '',
+    email: '',
+    question: ''
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -113,10 +70,52 @@ export default function ChatWidget() {
     setIsTyping(true)
     
     setTimeout(() => {
-      const response = getAssistantResponse(userMessage)
-      addMessage('assistant', response)
+      addMessage('assistant', 'Parfait ! Pour que notre équipe puisse vous répondre rapidement, pourriez-vous me donner votre nom, votre email et votre question ?')
       setIsTyping(false)
-    }, 1000 + Math.random() * 1000) // Délai réaliste
+      setShowContactForm(true)
+    }, 1000)
+  }
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!contactData.name.trim() || !contactData.email.trim() || !contactData.question.trim()) return
+
+    setIsSubmitting(true)
+
+    try {
+      // Créer le lien mailto avec le message formaté
+      const subject = encodeURIComponent('Question depuis le site web')
+      const body = encodeURIComponent(`
+Bonjour,
+
+Vous avez reçu une nouvelle question depuis le site web :
+
+Nom : ${contactData.name}
+Email : ${contactData.email}
+
+Question :
+${contactData.question}
+
+---
+Message envoyé depuis cabinetdentairerivedroite.com
+      `)
+
+      const mailtoLink = `mailto:cabinetdentaireaces@gmail.com?subject=${subject}&body=${body}`
+      
+      // Ouvrir le client email
+      window.location.href = mailtoLink
+      
+      // Simuler l'envoi réussi
+      setTimeout(() => {
+        setIsSubmitted(true)
+        setIsSubmitting(false)
+        addMessage('assistant', 'Parfait ! Votre message a été envoyé. Notre équipe vous répondra dès que possible. Merci de votre confiance ! 😊')
+      }, 1000)
+
+    } catch (error) {
+      console.error('Error:', error)
+      setIsSubmitting(false)
+    }
   }
 
   if (!isOpen) {
@@ -220,25 +219,88 @@ export default function ChatWidget() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input */}
+            {/* Input ou Formulaire de contact */}
             <div className="border-t p-4">
-              <form onSubmit={handleSubmit} className="flex gap-2">
-                <input
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Posez votre question..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  disabled={isTyping}
-                />
-                <Button
-                  type="submit"
-                  size="sm"
-                  disabled={isTyping || !input.trim()}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  <Send className="w-4 h-4" />
-                </Button>
-              </form>
+              {!showContactForm ? (
+                <form onSubmit={handleSubmit} className="flex gap-2">
+                  <input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Posez votre question..."
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    disabled={isTyping}
+                  />
+                  <Button
+                    type="submit"
+                    size="sm"
+                    disabled={isTyping || !input.trim()}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
+                </form>
+              ) : !isSubmitted ? (
+                <form onSubmit={handleContactSubmit} className="space-y-3">
+                  <input
+                    type="text"
+                    placeholder="Votre nom"
+                    value={contactData.name}
+                    onChange={(e) => setContactData(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    required
+                  />
+                  <input
+                    type="email"
+                    placeholder="Votre email"
+                    value={contactData.email}
+                    onChange={(e) => setContactData(prev => ({ ...prev, email: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    required
+                  />
+                  <textarea
+                    placeholder="Votre question..."
+                    value={contactData.question}
+                    onChange={(e) => setContactData(prev => ({ ...prev, question: e.target.value }))}
+                    className="w-full h-16 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
+                    required
+                  />
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting || !contactData.name.trim() || !contactData.email.trim() || !contactData.question.trim()}
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                  >
+                    {isSubmitting ? (
+                      <div className="flex items-center">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        Envoi...
+                      </div>
+                    ) : (
+                      <div className="flex items-center">
+                        <Send className="w-4 h-4 mr-2" />
+                        Envoyer
+                      </div>
+                    )}
+                  </Button>
+                </form>
+              ) : (
+                <div className="text-center">
+                  <div className="text-green-600 text-sm mb-2">
+                    ✅ Message envoyé avec succès !
+                  </div>
+                  <Button
+                    onClick={() => {
+                      setShowContactForm(false)
+                      setIsSubmitted(false)
+                      setContactData({ name: '', email: '', question: '' })
+                      setMessages([])
+                    }}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Nouvelle question
+                  </Button>
+                </div>
+              )}
             </div>
           </CardContent>
         )}
