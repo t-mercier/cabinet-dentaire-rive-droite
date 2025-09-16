@@ -32,7 +32,8 @@ export default function ChatWidget() {
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       setTimeout(() => {
-        addMessage('assistant', 'Bonjour ! 👋 Je suis l\'assistant du Cabinet Dentaire Rive Droite. Comment puis-je vous aider aujourd\'hui ?')
+        addMessage('assistant', 'Bonjour ! 👋 Je suis l\'assistant du Cabinet Dentaire Rive Droite. Pour que notre équipe puisse vous répondre rapidement, pourriez-vous me donner votre nom, votre email et votre question ?')
+        setShowContactForm(true)
       }, 500)
     }
   }, [isOpen, messages.length])
@@ -56,37 +57,6 @@ export default function ChatWidget() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim() || isTyping) return
-
-    const userMessage = input.trim()
-    setInput('')
-    
-    // Ajouter le message utilisateur
-    addMessage('user', userMessage)
-    
-    // Vérifier si c'est une urgence
-    const isEmergency = userMessage.toLowerCase().includes('urgence') || 
-                       userMessage.toLowerCase().includes('douleur') || 
-                       userMessage.toLowerCase().includes('mal') ||
-                       userMessage.toLowerCase().includes('urgent') ||
-                       userMessage.toLowerCase().includes('détartrage') ||
-                       userMessage.toLowerCase().includes('rendez-vous')
-    
-    // Simuler la frappe de l'assistant
-    setIsTyping(true)
-    
-    setTimeout(() => {
-      if (isEmergency) {
-        addMessage('assistant', '🚨 Je comprends que c\'est urgent ! Pour une prise en charge rapide, je vais vous rediriger directement vers notre équipe. Veuillez me donner votre nom, email et décrivez votre urgence.')
-      } else {
-        addMessage('assistant', 'Parfait ! Pour que notre équipe puisse vous répondre rapidement, pourriez-vous me donner votre nom, votre email et votre question ?')
-      }
-      setIsTyping(false)
-      setShowContactForm(true)
-    }, 1000)
-  }
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -161,7 +131,7 @@ Message envoyé depuis cabinetdentairerivedroite.com
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      <Card className="w-80 h-96 shadow-xl">
+      <Card className="w-80 h-[500px] shadow-xl">
         <CardHeader className="bg-blue-600 text-white p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -190,7 +160,7 @@ Message envoyé depuis cabinetdentairerivedroite.com
         </CardHeader>
 
         {!isMinimized && (
-          <CardContent className="p-0 flex flex-col h-80">
+          <CardContent className="p-0 flex flex-col h-[420px]">
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.map((message) => (
@@ -246,27 +216,9 @@ Message envoyé depuis cabinetdentairerivedroite.com
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input ou Formulaire de contact */}
-            <div className="border-t p-4">
-              {!showContactForm ? (
-                <form onSubmit={handleSubmit} className="flex gap-2">
-                  <input
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Posez votre question..."
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                    disabled={isTyping}
-                  />
-                  <Button
-                    type="submit"
-                    size="sm"
-                    disabled={isTyping || !input.trim()}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    <Send className="w-4 h-4" />
-                  </Button>
-                </form>
-              ) : !isSubmitted ? (
+            {/* Formulaire de contact */}
+            <div className="border-t p-4 bg-white">
+              {!isSubmitted ? (
                 <form onSubmit={handleContactSubmit} className="space-y-3">
                   <input
                     type="text"
