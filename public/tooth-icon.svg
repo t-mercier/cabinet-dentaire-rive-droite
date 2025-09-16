@@ -1,7 +1,15 @@
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background blanc pour l'emoji -->
-  <rect width="32" height="32" rx="6" fill="#FFFFFF"/>
+  <!-- Background bleu -->
+  <rect width="32" height="32" rx="6" fill="#3B82F6"/>
   
-  <!-- Emoji dent 🦷 -->
-  <text x="16" y="22" font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif" font-size="20" text-anchor="middle" dominant-baseline="middle">🦷</text>
+  <!-- Dent simple -->
+  <path d="M16 4C12 4 8 8 8 14C8 18 10 22 16 26C22 22 24 18 24 14C24 8 20 4 16 4Z" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="0.5"/>
+  
+  <!-- Racine -->
+  <path d="M16 26C16 26 18 28 18 30C18 30.5 17 31 16 31C15 31 14 30.5 14 30C14 28 16 26 16 26Z" fill="#FFFFFF"/>
+  
+  <!-- Détails -->
+  <circle cx="13" cy="10" r="1" fill="#3B82F6"/>
+  <circle cx="19" cy="10" r="1" fill="#3B82F6"/>
+  <path d="M12 14C12 14 14 16 16 16C18 16 20 14 20 14" stroke="#3B82F6" stroke-width="1" fill="none"/>
 </svg>
