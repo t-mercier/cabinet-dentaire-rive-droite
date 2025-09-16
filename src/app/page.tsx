@@ -13,45 +13,63 @@ import {
   Phone, 
   MapPin,
   Clock,
-  CheckCircle
+  CheckCircle,
+  Zap,
+  Activity,
+  Wrench,
+  Crown,
+  Sparkles,
+  Users
 } from 'lucide-react'
 
 const services = [
   {
     name: 'Implantologie',
     description: 'Remplacement de dents manquantes par des implants dentaires',
-    icon: Shield,
-    href: '/services/implantologie'
+    icon: Zap,
+    href: '/services/implantologie',
+    bgColor: 'bg-blue-50',
+    iconColor: 'text-blue-600'
   },
   {
     name: 'Parodontologie',
     description: 'Traitement des maladies des gencives et du parodonte',
-    icon: Heart,
-    href: '/services/parodontologie'
+    icon: Activity,
+    href: '/services/parodontologie',
+    bgColor: 'bg-green-50',
+    iconColor: 'text-green-600'
   },
   {
     name: 'Soins Conservateurs',
     description: 'Caries, obturations et soins préventifs',
-    icon: CheckCircle,
-    href: '/services/soins-conservateurs'
+    icon: Wrench,
+    href: '/services/soins-conservateurs',
+    bgColor: 'bg-purple-50',
+    iconColor: 'text-purple-600'
   },
   {
     name: 'Prothèses Dentaires',
     description: 'Couronnes, bridges et prothèses amovibles',
-    icon: Smile,
-    href: '/services/protheses-dentaires'
+    icon: Crown,
+    href: '/services/protheses-dentaires',
+    bgColor: 'bg-yellow-50',
+    iconColor: 'text-yellow-600'
   },
   {
     name: 'Blanchiment',
     description: 'Éclaircissement dentaire professionnel',
-    icon: Star,
-    href: '/services/blanchiment'
+    icon: Sparkles,
+    href: '/services/blanchiment',
+    bgColor: 'bg-pink-50',
+    iconColor: 'text-pink-600'
   },
   {
     name: 'Pédodontie',
     description: 'Soins dentaires spécialisés pour enfants',
-    icon: Baby,
-    href: '/services/pedodontie'
+    icon: Users,
+    href: '/services/pedodontie',
+    bgColor: 'bg-orange-50',
+    iconColor: 'text-orange-600'
   }
 ]
 
@@ -122,17 +140,17 @@ export default function Home() {
             {services.map((service) => {
               const IconComponent = service.icon
               return (
-                <Card key={service.name} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                      <IconComponent className="w-6 h-6 text-blue-600" />
+                <Card key={service.name} className={`hover:shadow-lg transition-shadow ${service.bgColor}`}>
+                  <CardHeader className="text-center">
+                    <div className={`w-12 h-12 ${service.bgColor} rounded-lg flex items-center justify-center mb-4 mx-auto`}>
+                      <IconComponent className={`w-6 h-6 ${service.iconColor}`} />
                     </div>
-                    <CardTitle className="text-xl">{service.name}</CardTitle>
-                    <CardDescription className="text-gray-600">
+                    <CardTitle className="text-xl text-center">{service.name}</CardTitle>
+                    <CardDescription className="text-gray-600 text-center">
                       {service.description}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="text-center">
                     <Button asChild variant="outline" className="w-full">
                       <Link href={service.href}>
                         En savoir plus

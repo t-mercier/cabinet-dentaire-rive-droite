@@ -53,7 +53,7 @@ export default function ContactPage() {
             
             {/* Email */}
             <div className="text-center p-6">
-              <Mail className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+              <Mail className="w-12 h-12 text-blue-600 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 Ou envoyez-nous un email
               </h3>
