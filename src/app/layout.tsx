@@ -17,9 +17,15 @@ export const metadata: Metadata = {
   keywords: "dentiste, Floirac, Bordeaux, implantologie, parodontologie, soins dentaires",
   authors: [{ name: "Cabinet Dentaire Rive Droite" }],
   icons: {
-    icon: '/icons8-tooth-pulsar-color-32.png',
+    icon: [
+      { url: '/icons8-tooth-pulsar-color-16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/icons8-tooth-pulsar-color-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icons8-tooth-pulsar-color-96.png', sizes: '96x96', type: 'image/png' },
+    ],
     shortcut: '/icons8-tooth-pulsar-color-32.png',
-    apple: '/icons8-tooth-pulsar-color-96.png',
+    apple: [
+      { url: '/icons8-tooth-pulsar-color-96.png', sizes: '96x96', type: 'image/png' },
+    ],
   },
   openGraph: {
     title: "Cabinet Dentaire Rive Droite",
