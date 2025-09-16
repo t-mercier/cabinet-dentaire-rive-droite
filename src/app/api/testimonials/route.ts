@@ -86,8 +86,8 @@ export async function POST(request: NextRequest) {
     console.error('Error details:', {
       name: error instanceof Error ? error.name : 'Unknown',
       message: error instanceof Error ? error.message : String(error),
-      code: (error as any)?.code || 'Unknown',
-      meta: (error as any)?.meta || 'Unknown'
+      code: (error as { code?: string })?.code || 'Unknown',
+      meta: (error as { meta?: unknown })?.meta || 'Unknown'
     })
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
