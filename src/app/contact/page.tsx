@@ -92,7 +92,7 @@ export default function ContactPage() {
                       Nous vous répondrons rapidement
                     </p>
                     <Button asChild className="bg-green-600 hover:bg-green-700 text-white">
-                      <a href="mailto:cabinetdentaireaces@gmail.com?subject=Demande de rendez-vous&body=Bonjour,%0D%0A%0D%0AJe souhaiterais prendre rendez-vous.%0D%0A%0D%0AMerci.">
+                      <a href="mailto:cabinetdentaireaces@gmail.com?subject=Demande de rendez-vous/information">
                         <Mail className="w-4 h-4 mr-2" />
                         Envoyer un email
                       </a>
