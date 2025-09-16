@@ -1,75 +1,122 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { MessageCircle, X, Mail, Send, User, CheckCircle } from 'lucide-react'
+import { MessageCircle, X, Send, Bot, User, Phone, Mail, Clock, MapPin } from 'lucide-react'
 
-interface ContactForm {
-  name: string
-  email: string
-  question: string
+interface Message {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: Date
 }
 
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
-  const [formData, setFormData] = useState<ContactForm>({
-    name: '',
-    email: '',
-    question: ''
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [input, setInput] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  // Message de bienvenue automatique
+  useEffect(() => {
+    if (isOpen && messages.length === 0) {
+      setTimeout(() => {
+        addMessage('assistant', 'Bonjour ! 👋 Je suis l\'assistant du Cabinet Dentaire Rive Droite. Comment puis-je vous aider aujourd\'hui ?')
+      }, 500)
+    }
+  }, [isOpen, messages.length])
+
+  const addMessage = (role: 'user' | 'assistant', content: string) => {
+    const newMessage: Message = {
+      id: Date.now().toString(),
+      role,
+      content,
+      timestamp: new Date()
+    }
+    setMessages(prev => [...prev, newMessage])
+  }
+
+  const getAssistantResponse = (userMessage: string): string => {
+    const message = userMessage.toLowerCase()
+    
+    // Salutations
+    if (message.includes('bonjour') || message.includes('salut') || message.includes('hello')) {
+      return 'Bonjour ! 😊 Je suis ravi de vous accueillir. Que puis-je faire pour vous aujourd\'hui ?'
+    }
+    
+    // Rendez-vous
+    if (message.includes('rendez-vous') || message.includes('rdv') || message.includes('appointment')) {
+      return 'Pour prendre rendez-vous, vous pouvez nous appeler au 📞 **05.56.86.29.00** ou nous envoyer un email à **cabinetdentaireaces@gmail.com**. Nous vous répondrons rapidement !'
+    }
+    
+    // Horaires
+    if (message.includes('horaire') || message.includes('ouvert') || message.includes('fermé')) {
+      return 'Nos horaires d\'ouverture :\n\n🕐 **Lundi au Vendredi** : 8h30 - 19h00\n🕐 **Samedi** : 8h30 - 12h30\n🕐 **Dimanche** : Fermé\n\nNous sommes situés au **123 Avenue de la Rive Droite, 33000 Bordeaux**'
+    }
+    
+    // Services
+    if (message.includes('service') || message.includes('soin') || message.includes('traitement')) {
+      return 'Nous proposons de nombreux services :\n\n🦷 **Implantologie**\n🦷 **Parodontologie**\n🦷 **Soins Conservateurs**\n🦷 **Prothèses Dentaires**\n🦷 **Blanchiment**\n🦷 **Pédodontie**\n\nVoulez-vous plus d\'informations sur un service particulier ?'
+    }
+    
+    // Urgences
+    if (message.includes('urgence') || message.includes('douleur') || message.includes('mal')) {
+      return '🚨 **En cas d\'urgence dentaire**, appelez-nous immédiatement au **05.56.86.29.00**. Nous avons des créneaux d\'urgence disponibles. Si c\'est en dehors des horaires, laissez un message et nous vous rappellerons rapidement.'
+    }
+    
+    // Prix/tarifs
+    if (message.includes('prix') || message.includes('tarif') || message.includes('coût') || message.includes('combien')) {
+      return 'Les tarifs varient selon le traitement. Pour un devis personnalisé, je vous invite à nous contacter au **05.56.86.29.00** ou par email à **cabinetdentaireaces@gmail.com**. Nous vous fournirons un devis détaillé et transparent.'
+    }
+    
+    // Contact
+    if (message.includes('contact') || message.includes('adresse') || message.includes('téléphone')) {
+      return '📞 **Téléphone** : 05.56.86.29.00\n📧 **Email** : cabinetdentaireaces@gmail.com\n📍 **Adresse** : 123 Avenue de la Rive Droite, 33000 Bordeaux\n\nN\'hésitez pas à nous contacter pour toute question !'
+    }
+    
+    // Assurance/mutuelle
+    if (message.includes('assurance') || message.includes('mutuelle') || message.includes('remboursement')) {
+      return 'Nous acceptons la plupart des mutuelles et assurances. Pour connaître votre prise en charge, contactez votre mutuelle ou appelez-nous au **05.56.86.29.00**. Nous vous aiderons à optimiser vos remboursements.'
+    }
+    
+    // Questions générales
+    if (message.includes('merci') || message.includes('thanks')) {
+      return 'De rien ! 😊 N\'hésitez pas si vous avez d\'autres questions. Je suis là pour vous aider !'
+    }
+    
+    // Réponse par défaut
+    return 'Merci pour votre question ! Pour une réponse personnalisée, je vous invite à nous contacter directement :\n\n📞 **Téléphone** : 05.56.86.29.00\n📧 **Email** : cabinetdentaireaces@gmail.com\n\nNotre équipe vous répondra rapidement avec des informations précises !'
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formData.name.trim() || !formData.email.trim() || !formData.question.trim()) return
+    if (!input.trim() || isTyping) return
 
-    setIsSubmitting(true)
-
-    try {
-      // Créer le lien mailto avec le message formaté
-      const subject = encodeURIComponent('Question depuis le site web')
-      const body = encodeURIComponent(`
-Bonjour,
-
-Vous avez reçu une nouvelle question depuis le site web :
-
-Nom : ${formData.name}
-Email : ${formData.email}
-
-Question :
-${formData.question}
-
----
-Message envoyé depuis cabinetdentairerivedroite.com
-      `)
-
-      const mailtoLink = `mailto:cabinetdentaireaces@gmail.com?subject=${subject}&body=${body}`
-      
-      // Ouvrir le client email
-      window.location.href = mailtoLink
-      
-      // Simuler l'envoi réussi
-      setTimeout(() => {
-        setIsSubmitted(true)
-        setIsSubmitting(false)
-      }, 1000)
-
-    } catch (error) {
-      console.error('Error:', error)
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleInputChange = (field: keyof ContactForm, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-  }
-
-  const resetForm = () => {
-    setFormData({ name: '', email: '', question: '' })
-    setIsSubmitted(false)
+    const userMessage = input.trim()
+    setInput('')
+    
+    // Ajouter le message utilisateur
+    addMessage('user', userMessage)
+    
+    // Simuler la frappe de l'assistant
+    setIsTyping(true)
+    
+    setTimeout(() => {
+      const response = getAssistantResponse(userMessage)
+      addMessage('assistant', response)
+      setIsTyping(false)
+    }, 1000 + Math.random() * 1000) // Délai réaliste
   }
 
   if (!isOpen) {
@@ -92,8 +139,8 @@ Message envoyé depuis cabinetdentairerivedroite.com
         <CardHeader className="bg-blue-600 text-white p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <Mail className="w-5 h-5 mr-2" />
-              <CardTitle className="text-lg">Contact</CardTitle>
+              <Bot className="w-5 h-5 mr-2" />
+              <CardTitle className="text-lg">Assistant Dentaire</CardTitle>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -117,84 +164,82 @@ Message envoyé depuis cabinetdentairerivedroite.com
         </CardHeader>
 
         {!isMinimized && (
-          <CardContent className="p-4 flex flex-col h-80">
-            {!isSubmitted ? (
-              <>
-                <div className="text-center text-gray-600 text-sm mb-4">
-                  <Mail className="w-8 h-8 mx-auto mb-2 text-blue-600" />
-                  <p>Bonjour ! Quel est votre nom, email et question ?</p>
-                </div>
-
-                <form onSubmit={handleSubmit} className="flex-1 flex flex-col space-y-3">
-                  <div>
-                    <input
-                      type="text"
-                      placeholder="Votre nom"
-                      value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <input
-                      type="email"
-                      placeholder="Votre email"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                      required
-                    />
-                  </div>
-                  
-                  <div className="flex-1">
-                    <textarea
-                      placeholder="Votre question..."
-                      value={formData.question}
-                      onChange={(e) => handleInputChange('question', e.target.value)}
-                      className="w-full h-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
-                      required
-                    />
-                  </div>
-                  
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting || !formData.name.trim() || !formData.email.trim() || !formData.question.trim()}
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                  >
-                    {isSubmitting ? (
-                      <div className="flex items-center">
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                        Envoi...
-                      </div>
-                    ) : (
-                      <div className="flex items-center">
-                        <Send className="w-4 h-4 mr-2" />
-                        Envoyer
-                      </div>
-                    )}
-                  </Button>
-                </form>
-              </>
-            ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-center">
-                <CheckCircle className="w-16 h-16 text-green-600 mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Message envoyé !
-                </h3>
-                <p className="text-gray-600 text-sm mb-4">
-                  Nous reviendrons vers vous dès que possible.
-                </p>
-                <Button
-                  onClick={resetForm}
-                  variant="outline"
-                  size="sm"
+          <CardContent className="p-0 flex flex-col h-80">
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  Nouveau message
+                  <div
+                    className={`max-w-[85%] rounded-lg p-3 ${
+                      message.role === 'user'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-900'
+                    }`}
+                  >
+                    <div className="flex items-start">
+                      {message.role === 'assistant' && (
+                        <Bot className="w-4 h-4 mr-2 mt-0.5 text-blue-600 flex-shrink-0" />
+                      )}
+                      {message.role === 'user' && (
+                        <User className="w-4 h-4 mr-2 mt-0.5 text-white flex-shrink-0" />
+                      )}
+                      <div className="text-sm whitespace-pre-wrap">
+                        {message.content}
+                      </div>
+                    </div>
+                    <div className={`text-xs mt-1 ${
+                      message.role === 'user' ? 'text-blue-100' : 'text-gray-500'
+                    }`}>
+                      {message.timestamp.toLocaleTimeString('fr-FR', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {isTyping && (
+                <div className="flex justify-start">
+                  <div className="bg-gray-100 rounded-lg p-3 max-w-[85%]">
+                    <div className="flex items-center">
+                      <Bot className="w-4 h-4 mr-2 text-blue-600" />
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input */}
+            <div className="border-t p-4">
+              <form onSubmit={handleSubmit} className="flex gap-2">
+                <input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Posez votre question..."
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  disabled={isTyping}
+                />
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={isTyping || !input.trim()}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <Send className="w-4 h-4" />
                 </Button>
-              </div>
-            )}
+              </form>
+            </div>
           </CardContent>
         )}
       </Card>
