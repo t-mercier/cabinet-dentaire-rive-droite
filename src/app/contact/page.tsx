@@ -29,31 +29,31 @@ export default function ContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Prise de rendez-vous */}
           <div>
-            <div className="bg-blue-600 rounded-lg p-8 text-white">
-              <h2 className="text-2xl font-bold mb-6 text-center">Prendre rendez-vous</h2>
+            <div className="p-8">
+              <h2 className="text-2xl font-bold mb-6 text-center text-gray-900">Prendre rendez-vous</h2>
               <div className="space-y-6">
-                <div className="text-center p-6 bg-white/10 rounded-lg">
-                  <Phone className="w-12 h-12 text-white mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-white mb-2">
+                <div className="text-center p-6 bg-gray-50 rounded-lg">
+                  <Phone className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
                     Appelez-nous directement
                   </h3>
-                  <p className="text-3xl font-bold text-white mb-2">
+                  <p className="text-3xl font-bold text-blue-600 mb-2">
                     05.56.86.29.00
                   </p>
-                  <p className="text-blue-100">
+                  <p className="text-gray-600">
                     Du lundi au vendredi de 9h à 19h30
                   </p>
                 </div>
                 
-                <div className="text-center p-6 bg-white/10 rounded-lg">
-                  <Mail className="w-12 h-12 text-white mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-white mb-2">
+                <div className="text-center p-6 bg-gray-50 rounded-lg">
+                  <Mail className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
                     Ou envoyez-nous un email
                   </h3>
-                  <p className="text-lg text-white mb-2">
+                  <p className="text-lg text-blue-600 mb-2">
                     cabinetdentaireaces@gmail.com
                   </p>
-                  <p className="text-blue-100">
+                  <p className="text-gray-600">
                     Nous vous répondrons rapidement
                   </p>
                 </div>
