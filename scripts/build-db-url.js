@@ -25,4 +25,3 @@ console.log(databaseUrl);
 
 // Optionnel : écrire dans un fichier temporaire
 fs.writeFileSync('.env.temp', `DATABASE_URL="${databaseUrl}"`);
-console.log('✅ Écrit dans .env.temp');
