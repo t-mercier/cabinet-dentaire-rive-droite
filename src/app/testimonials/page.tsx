@@ -215,7 +215,7 @@ export default function TestimonialsPage() {
         try {
           const error = JSON.parse(errorText)
           errorMessage = error.error || errorMessage
-        } catch (e) {
+        } catch (parseError) {
           errorMessage = errorText || errorMessage
         }
         
