@@ -151,11 +151,9 @@ export default function Home() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="text-center">
-                    <Button asChild variant="outline" className="w-full">
-                      <Link href={service.href}>
-                        En savoir plus
-                      </Link>
-                    </Button>
+                    <Link href={service.href} className={`font-medium hover:underline ${service.iconColor}`}>
+                      En savoir plus
+                    </Link>
                   </CardContent>
                 </Card>
               )
