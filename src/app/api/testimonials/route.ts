@@ -3,6 +3,14 @@ import { db } from '@/lib/db'
 
 export async function GET() {
   try {
+    console.log('GET /api/testimonials - Starting...')
+    console.log('DATABASE_URL present:', !!process.env.DATABASE_URL)
+    console.log('DATABASE_URL starts with:', process.env.DATABASE_URL?.substring(0, 30))
+    
+    // Test de connexion
+    await db.$connect()
+    console.log('Database connection successful')
+    
     const testimonials = await db.testimonial.findMany({
       // Pour le moment, on affiche tous les témoignages (même non approuvés)
       // where: {
@@ -13,9 +21,16 @@ export async function GET() {
       }
     })
 
+    console.log('Found testimonials:', testimonials.length)
     return NextResponse.json(testimonials)
   } catch (error) {
     console.error('Error fetching testimonials:', error)
+    console.error('Error details:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : String(error),
+      code: (error as { code?: string })?.code || 'Unknown',
+      meta: (error as { meta?: unknown })?.meta || 'Unknown'
+    })
     return NextResponse.json(
       { error: 'Erreur lors de la récupération des témoignages' },
       { status: 500 }
