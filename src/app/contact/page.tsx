@@ -1,12 +1,10 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { 
   Phone, 
   Mail, 
   MapPin, 
-  Clock,
-  Calendar,
-  MessageCircle
+  Clock
 } from 'lucide-react'
 
 export default function ContactPage() {

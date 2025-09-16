@@ -9,7 +9,6 @@ import {
   ArrowLeft,
   Clock,
   Award,
-  Users,
   Search,
   Scissors,
   Zap,

@@ -8,6 +8,12 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // Alternative: utiliser les variables séparées
+  // host     = env("DB_HOST")
+  // port     = env("DB_PORT")
+  // database = env("DB_NAME")
+  // username = env("DB_USER")
+  // password = env("DB_PASSWORD")
 }
 
 model Patient {
@@ -49,6 +55,7 @@ model Testimonial {
   patientName String
   rating    Int      @db.SmallInt
   content   String
+  service   String?  // Ajout du champ service
   isApproved Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
