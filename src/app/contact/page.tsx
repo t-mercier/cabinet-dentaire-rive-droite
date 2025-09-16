@@ -61,9 +61,11 @@ export default function ContactPage() {
                     <p className="text-gray-600 mb-4">
                       Du lundi au vendredi de 9h à 19h30
                     </p>
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                      <Phone className="w-4 h-4 mr-2" />
-                      Appeler maintenant
+                    <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
+                      <a href="tel:0556862900">
+                        <Phone className="w-4 h-4 mr-2" />
+                        Appeler maintenant
+                      </a>
                     </Button>
                   </div>
                 </div>
@@ -89,9 +91,11 @@ export default function ContactPage() {
                     <p className="text-gray-600 mb-4">
                       Nous vous répondrons rapidement
                     </p>
-                    <Button className="bg-green-600 hover:bg-green-700 text-white">
-                      <Mail className="w-4 h-4 mr-2" />
-                      Envoyer un email
+                    <Button asChild className="bg-green-600 hover:bg-green-700 text-white">
+                      <a href="mailto:cabinetdentaireaces@gmail.com?subject=Demande de rendez-vous&body=Bonjour,%0D%0A%0D%0AJe souhaiterais prendre rendez-vous.%0D%0A%0D%0AMerci.">
+                        <Mail className="w-4 h-4 mr-2" />
+                        Envoyer un email
+                      </a>
                     </Button>
                   </div>
                 </div>
