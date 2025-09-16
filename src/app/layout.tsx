@@ -16,6 +16,11 @@ export const metadata: Metadata = {
   description: "Cabinet dentaire moderne à Floirac, Bordeaux. Soins dentaires de qualité : implantologie, parodontologie, soins conservateurs, prothèses, blanchiment et pédodontie.",
   keywords: "dentiste, Floirac, Bordeaux, implantologie, parodontologie, soins dentaires",
   authors: [{ name: "Cabinet Dentaire Rive Droite" }],
+  icons: {
+    icon: '/tooth-icon.svg',
+    shortcut: '/tooth-icon.svg',
+    apple: '/tooth-icon.svg',
+  },
   openGraph: {
     title: "Cabinet Dentaire Rive Droite",
     description: "Cabinet dentaire moderne à Floirac, Bordeaux",
