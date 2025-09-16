@@ -102,9 +102,9 @@ export default function Home() {
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg">
-                <Link href="/patient-portal">
-                  <User className="w-5 h-5 mr-2" />
-                  Espace Patient
+                <Link href="/contact">
+                  <Phone className="w-5 h-5 mr-2" />
+                  Nous contacter
                 </Link>
               </Button>
             </div>
@@ -277,9 +277,9 @@ export default function Home() {
               </Link>
             </Button>
             <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-blue-50 border-white">
-              <Link href="/patient-portal">
-                <User className="w-5 h-5 mr-2" />
-                Espace Patient
+              <Link href="/contact">
+                <Phone className="w-5 h-5 mr-2" />
+                Nous contacter
               </Link>
             </Button>
           </div>
