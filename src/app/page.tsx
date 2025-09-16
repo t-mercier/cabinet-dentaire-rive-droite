@@ -94,17 +94,11 @@ export default function Home() {
               Votre santé bucco-dentaire est notre priorité. Nous offrons des soins de qualité 
               dans un environnement moderne et confortable à Floirac, Bordeaux.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex justify-center">
               <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700">
                 <Link href="/contact">
                   <Calendar className="w-5 h-5 mr-2" />
                   Prendre RDV
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg">
-                <Link href="/contact">
-                  <Phone className="w-5 h-5 mr-2" />
-                  Nous contacter
                 </Link>
               </Button>
             </div>
@@ -269,17 +263,11 @@ export default function Home() {
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
             Contactez-nous dès aujourd'hui pour planifier votre consultation
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" variant="secondary">
+          <div className="flex justify-center">
+            <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-blue-50">
               <Link href="/contact">
-                <Phone className="w-5 h-5 mr-2" />
-                Nous contacter
-              </Link>
-            </Button>
-            <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-blue-50 border-white">
-              <Link href="/contact">
-                <Phone className="w-5 h-5 mr-2" />
-                Nous contacter
+                <Calendar className="w-5 h-5 mr-2" />
+                Prendre RDV
               </Link>
             </Button>
           </div>

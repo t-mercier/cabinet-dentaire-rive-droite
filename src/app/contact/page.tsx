@@ -3,8 +3,7 @@ import {
   Phone, 
   Mail, 
   MapPin, 
-  Clock, 
-  AlertCircle
+  Clock
 } from 'lucide-react'
 
 export default function ContactPage() {
@@ -118,29 +117,6 @@ export default function ContactPage() {
               </CardContent>
             </Card>
 
-            {/* Emergency Info */}
-            <Card className="border-red-200 bg-red-50">
-              <CardHeader>
-                <CardTitle className="text-2xl text-red-900 flex items-center">
-                  <AlertCircle className="w-6 h-6 mr-2" />
-                  Urgences dentaires
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-red-800 mb-4">
-                  En cas d'urgence dentaire (douleur intense, traumatisme, abcès), 
-                  contactez-nous immédiatement au :
-                </p>
-                <div className="bg-white p-4 rounded-lg border border-red-200">
-                  <p className="text-2xl font-bold text-red-600 text-center">
-                    05.56.86.29.00
-                  </p>
-                  <p className="text-sm text-red-700 text-center mt-2">
-                    Nous ferons notre possible pour vous recevoir rapidement
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Map */}
             <Card>
