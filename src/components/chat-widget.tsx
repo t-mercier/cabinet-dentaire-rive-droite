@@ -65,49 +65,33 @@ export default function ChatWidget() {
     setIsSubmitting(true)
 
     try {
-      // Détecter si c'est une urgence
-      const isEmergency = contactData.question.toLowerCase().includes('urgence') || 
-                         contactData.question.toLowerCase().includes('douleur') || 
-                         contactData.question.toLowerCase().includes('mal') ||
-                         contactData.question.toLowerCase().includes('urgent') ||
-                         contactData.question.toLowerCase().includes('détartrage') ||
-                         contactData.question.toLowerCase().includes('rendez-vous')
+      // Envoyer l'email via l'API
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: contactData.name,
+          email: contactData.email,
+          question: contactData.question
+        }),
+      })
 
-      // Créer le lien mailto avec le message formaté
-      const subject = isEmergency 
-        ? '🚨 URGENCE - Demande de rendez-vous'
-        : 'Question depuis le site web'
-      
-      const body = `
-Bonjour,
+      const result = await response.json()
 
-${isEmergency ? '🚨 URGENCE - ' : ''}Vous avez reçu une nouvelle ${isEmergency ? 'demande de rendez-vous' : 'question'} depuis le site web :
-
-Nom : ${contactData.name}
-Email : ${contactData.email}
-
-${isEmergency ? 'Urgence :' : 'Question :'}
-${contactData.question}
-
----
-Message envoyé depuis cabinetdentairerivedroite.com
-      `
-
-      const mailtoLink = `mailto:cabinetdentaireaces@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
-      
-      // Ouvrir le client email
-      window.open(mailtoLink, '_self')
-      
-      // Simuler l'envoi réussi
-      setTimeout(() => {
+      if (response.ok && result.success) {
         setIsSubmitted(true)
         setIsSubmitting(false)
-        if (isEmergency) {
+        
+        if (result.isEmergency) {
           addMessage('assistant', '🚨 Urgence transmise ! Notre équipe vous contactera en priorité dans les plus brefs délais. En cas d\'urgence extrême, appelez-nous au 05.56.86.29.00')
         } else {
           addMessage('assistant', 'Parfait ! Votre message a été envoyé. Notre équipe vous répondra dès que possible. Merci de votre confiance ! 😊')
         }
-      }, 1000)
+      } else {
+        throw new Error(result.error || 'Erreur lors de l\'envoi')
+      }
 
     } catch (error) {
       console.error('Error:', error)
