@@ -1,61 +1,13 @@
-'use client'
-
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { 
   Phone, 
   Mail, 
   MapPin, 
   Clock, 
-  AlertCircle,
-  Send,
-  CheckCircle
+  AlertCircle
 } from 'lucide-react'
-import { toast } from 'sonner'
 
 export default function ContactPage() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    subject: '',
-    message: ''
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-
-    try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
-
-      if (response.ok) {
-        toast.success('Message envoyé avec succès !')
-        setFormData({ name: '', email: '', phone: '', subject: '', message: '' })
-      } else {
-        toast.error('Erreur lors de l\'envoi du message')
-      }
-    } catch (error) {
-      toast.error('Erreur lors de l\'envoi du message')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -76,121 +28,38 @@ export default function ContactPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Contact Form */}
+          {/* Prise de rendez-vous */}
           <div>
             <Card>
               <CardHeader>
-                <CardTitle className="text-2xl">Envoyez-nous un message</CardTitle>
-                <CardDescription>
-                  Remplissez le formulaire ci-dessous et nous vous répondrons dans les plus brefs délais.
-                </CardDescription>
+                <CardTitle className="text-2xl">Prendre rendez-vous</CardTitle>
               </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                        Nom complet *
-                      </label>
-                      <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        required
-                        value={formData.name}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Votre nom"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                        Email *
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        required
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="votre@email.com"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                        Téléphone
-                      </label>
-                      <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="05.XX.XX.XX.XX"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                        Sujet *
-                      </label>
-                      <select
-                        id="subject"
-                        name="subject"
-                        required
-                        value={formData.subject}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="">Sélectionnez un sujet</option>
-                        <option value="rendez-vous">Prise de rendez-vous</option>
-                        <option value="urgence">Urgence dentaire</option>
-                        <option value="devis">Demande de devis</option>
-                        <option value="information">Demande d'information</option>
-                        <option value="autre">Autre</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                      Message *
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      required
-                      rows={6}
-                      value={formData.message}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Décrivez votre demande ou votre problème..."
-                    />
-                  </div>
-
-                  <Button 
-                    type="submit" 
-                    disabled={isSubmitting}
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                        Envoi en cours...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4 mr-2" />
-                        Envoyer le message
-                      </>
-                    )}
-                  </Button>
-                </form>
+              <CardContent className="space-y-6">
+                <div className="text-center p-6 bg-blue-50 rounded-lg">
+                  <Phone className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    Appelez-nous directement
+                  </h3>
+                  <p className="text-3xl font-bold text-blue-600 mb-2">
+                    05.56.86.29.00
+                  </p>
+                  <p className="text-gray-600">
+                    Du lundi au vendredi de 9h à 19h30
+                  </p>
+                </div>
+                
+                <div className="text-center p-6 bg-gray-50 rounded-lg">
+                  <Mail className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    Ou envoyez-nous un email
+                  </h3>
+                  <p className="text-lg text-blue-600 mb-2">
+                    cabinetdentaireaces@gmail.com
+                  </p>
+                  <p className="text-gray-600">
+                    Nous vous répondrons rapidement
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </div>

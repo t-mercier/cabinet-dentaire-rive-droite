@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import ChatWidget from "@/components/chat-widget";
 import { Toaster } from "@/components/ui/sonner";
 // import { ClerkProvider } from '@clerk/nextjs';
 
@@ -38,7 +37,6 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
-        <ChatWidget />
         <Toaster />
       </body>
     </html>
