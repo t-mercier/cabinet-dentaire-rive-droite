@@ -29,10 +29,18 @@ export default function ContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Prise de rendez-vous */}
           <div>
-            <div className="p-8">
-              <h2 className="text-2xl font-bold mb-6 text-center text-gray-900">Prendre rendez-vous</h2>
+            <div className="bg-gradient-to-r from-blue-50 to-green-50 p-8 rounded-lg">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  Prendre rendez-vous
+                </h2>
+                <p className="text-xl text-gray-600">
+                  Contactez-nous pour planifier votre consultation
+                </p>
+              </div>
+              
               <div className="space-y-6">
-                <div className="text-center p-6 bg-gray-50 rounded-lg">
+                <div className="text-center p-6 bg-white rounded-lg shadow-sm">
                   <Phone className="w-12 h-12 text-blue-600 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
                     Appelez-nous directement
@@ -45,7 +53,7 @@ export default function ContactPage() {
                   </p>
                 </div>
                 
-                <div className="text-center p-6 bg-gray-50 rounded-lg">
+                <div className="text-center p-6 bg-white rounded-lg shadow-sm">
                   <Mail className="w-12 h-12 text-gray-600 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
                     Ou envoyez-nous un email
@@ -80,24 +88,6 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                <div className="flex items-start">
-                  <Phone className="w-6 h-6 text-blue-600 mr-4 mt-1" />
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Téléphone</h3>
-                    <p className="text-gray-600">05.56.86.29.00</p>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Pour les urgences, appelez directement
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start">
-                  <Mail className="w-6 h-6 text-blue-600 mr-4 mt-1" />
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
-                    <p className="text-gray-600">cabinetdentaireaces@gmail.com</p>
-                  </div>
-                </div>
 
                 <div className="flex items-start">
                   <Clock className="w-6 h-6 text-blue-600 mr-4 mt-1" />
