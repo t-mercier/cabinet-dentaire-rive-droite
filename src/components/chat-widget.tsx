@@ -75,10 +75,10 @@ export default function ChatWidget() {
 
       // Créer le lien mailto avec le message formaté
       const subject = isEmergency 
-        ? encodeURIComponent('🚨 URGENCE - Demande de rendez-vous')
-        : encodeURIComponent('Question depuis le site web')
+        ? '🚨 URGENCE - Demande de rendez-vous'
+        : 'Question depuis le site web'
       
-      const body = encodeURIComponent(`
+      const body = `
 Bonjour,
 
 ${isEmergency ? '🚨 URGENCE - ' : ''}Vous avez reçu une nouvelle ${isEmergency ? 'demande de rendez-vous' : 'question'} depuis le site web :
@@ -91,12 +91,12 @@ ${contactData.question}
 
 ---
 Message envoyé depuis cabinetdentairerivedroite.com
-      `)
+      `
 
-      const mailtoLink = `mailto:cabinetdentaireaces@gmail.com?subject=${subject}&body=${body}`
+      const mailtoLink = `mailto:cabinetdentaireaces@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
       
       // Ouvrir le client email
-      window.location.href = mailtoLink
+      window.open(mailtoLink, '_self')
       
       // Simuler l'envoi réussi
       setTimeout(() => {
@@ -112,6 +112,7 @@ Message envoyé depuis cabinetdentairerivedroite.com
     } catch (error) {
       console.error('Error:', error)
       setIsSubmitting(false)
+      addMessage('assistant', 'Désolé, une erreur s\'est produite. Veuillez réessayer ou nous contacter directement au 05.56.86.29.00')
     }
   }
 
