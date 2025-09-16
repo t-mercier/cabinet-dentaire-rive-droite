@@ -140,7 +140,7 @@ export default function Home() {
             {services.map((service) => {
               const IconComponent = service.icon
               return (
-                <Card key={service.name} className={`hover:shadow-lg transition-shadow ${service.bgColor}`}>
+                <Card key={service.name} className={`hover:shadow-lg transition-shadow ${service.bgColor} border-0`}>
                   <CardHeader className="text-center">
                     <div className={`w-12 h-12 ${service.bgColor} rounded-lg flex items-center justify-center mb-4 mx-auto`}>
                       <IconComponent className={`w-6 h-6 ${service.iconColor}`} />
