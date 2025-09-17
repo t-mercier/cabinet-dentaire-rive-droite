@@ -7,10 +7,6 @@ export async function GET() {
     console.log('DATABASE_URL present:', !!process.env.DATABASE_URL)
     console.log('DATABASE_URL starts with:', process.env.DATABASE_URL?.substring(0, 30))
     
-    // Test de connexion
-    await db.$connect()
-    console.log('Database connection successful')
-    
     const testimonials = await db.testimonial.findMany({
       // Pour le moment, on affiche tous les témoignages (même non approuvés)
       // where: {
@@ -62,17 +58,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Test de connexion à la base de données
-    try {
-      await db.$connect()
-      console.log('Database connection successful')
-    } catch (dbError) {
-      console.error('Database connection failed:', dbError)
-      return NextResponse.json(
-        { error: 'Erreur de connexion à la base de données' },
-        { status: 500 }
-      )
-    }
+    // Prisma se connecte automatiquement, pas besoin de $connect()
 
     // Save to database (initially not approved)
     const testimonial = await db.testimonial.create({
