@@ -1,32 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 export async function GET() {
   try {
     console.log('GET /api/testimonials - Starting...')
-    console.log('DATABASE_URL present:', !!process.env.DATABASE_URL)
-    console.log('DATABASE_URL starts with:', process.env.DATABASE_URL?.substring(0, 30))
     
-    const testimonials = await db.testimonial.findMany({
-      // Pour le moment, on affiche tous les témoignages (même non approuvés)
-      // where: {
-      //   isApproved: true
-      // },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    })
+    const { data: testimonials, error } = await supabase
+      .from('testimonials')
+      .select('*')
+      .order('createdAt', { ascending: false })
 
-    console.log('Found testimonials:', testimonials.length)
-    return NextResponse.json(testimonials)
+    if (error) {
+      console.error('Supabase error:', error)
+      return NextResponse.json(
+        { error: 'Erreur lors de la récupération des témoignages' },
+        { status: 500 }
+      )
+    }
+
+    console.log('Found testimonials:', testimonials?.length || 0)
+    return NextResponse.json(testimonials || [])
   } catch (error) {
     console.error('Error fetching testimonials:', error)
-    console.error('Error details:', {
-      name: error instanceof Error ? error.name : 'Unknown',
-      message: error instanceof Error ? error.message : String(error),
-      code: (error as { code?: string })?.code || 'Unknown',
-      meta: (error as { meta?: unknown })?.meta || 'Unknown'
-    })
     return NextResponse.json(
       { error: 'Erreur lors de la récupération des témoignages' },
       { status: 500 }
@@ -36,9 +36,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    // Vérifier la connexion à la base de données
-    console.log('DATABASE_URL present:', !!process.env.DATABASE_URL)
-    console.log('DATABASE_URL starts with:', process.env.DATABASE_URL?.substring(0, 20))
+    console.log('POST /api/testimonials - Starting...')
     
     const body = await request.json()
     const { name, rating, content, service } = body
@@ -58,20 +56,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Prisma se connecte automatiquement, pas besoin de $connect()
-
-    // Save to database (initially not approved)
-    const testimonial = await db.testimonial.create({
-      data: {
+    // Save to database using Supabase
+    const { data: testimonial, error } = await supabase
+      .from('testimonials')
+      .insert({
         patientName: name || 'Anonyme',
         rating,
         content,
         service: service || 'Général',
         isApproved: false // Will be approved by admin
-      }
-    })
+      })
+      .select()
+      .single()
 
-    // Here you could also send an email notification to the practice
+    if (error) {
+      console.error('Supabase error:', error)
+      return NextResponse.json(
+        { error: 'Erreur lors de la sauvegarde du témoignage' },
+        { status: 500 }
+      )
+    }
+
     console.log('New testimonial submission:', testimonial)
 
     return NextResponse.json(
@@ -84,12 +89,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error processing testimonial:', error)
-    console.error('Error details:', {
-      name: error instanceof Error ? error.name : 'Unknown',
-      message: error instanceof Error ? error.message : String(error),
-      code: (error as { code?: string })?.code || 'Unknown',
-      meta: (error as { meta?: unknown })?.meta || 'Unknown'
-    })
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }
