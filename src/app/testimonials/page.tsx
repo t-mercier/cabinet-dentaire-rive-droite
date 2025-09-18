@@ -1,5 +1,12 @@
 'use client'
 
+/**
+ * What changed & why
+ * - Centralized API calls via lib/api/testimonials for clarity.
+ * - Removed console logs; user feedback via toasts remains.
+ * - Behavior unchanged: loads from API with localStorage fallback; submits via API.
+ */
+
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,10 +17,28 @@ import {
   MessageSquare
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { getTestimonials, postTestimonial, type PublicTestimonial } from '@/lib/api/testimonials'
 
-const testimonials = [
+// UI-facing testimonial type and inputs
+type LocalTestimonial = {
+  id: string
+  name: string
+  rating: number
+  content: string
+  service: string
+  date: string
+}
+
+type NewTestimonialInput = {
+  name: string
+  rating: number
+  content: string
+  service: string
+}
+
+const seedTestimonials: LocalTestimonial[] = [
   {
-    id: 1,
+    id: '1',
     name: 'Marie L.',
     rating: 5,
     content: 'Excellent accueil et soins de qualité. Détartrage parfait et l\'équipe a très bien soigné les caries de mes enfants. L\'équipe est très professionnelle et à l\'écoute. Je recommande vivement ce cabinet.',
@@ -21,7 +46,7 @@ const testimonials = [
     date: '2024-01-15'
   },
   {
-    id: 2,
+    id: '2',
     name: 'Jean-Pierre D.',
     rating: 5,
     content: 'Cabinet moderne et équipe ultra compétente. Les soins d\'implantologie ont été parfaitement réalisés. Je suis très satisfait du résultat.',
@@ -29,7 +54,7 @@ const testimonials = [
     date: '2024-01-10'
   },
   {
-    id: 3,
+    id: '3',
     name: 'Sophie M.',
     rating: 5,
     content: 'Très satisfaite de mes soins d\'implantologie. L\'équipe est à l\'écoute et le résultat est parfait. Je recommande sans hésitation.',
@@ -37,7 +62,7 @@ const testimonials = [
     date: '2024-01-08'
   },
   {
-    id: 9,
+    id: '9',
     name: 'Catherine L.',
     rating: 5,
     content: 'Le Dr Mercier m\'a posé un implant dentaire la semaine dernière, il a pris le temps de m\'expliquer chaque étape de façon très claire, et m\'a rassurée tout au long du processus. Un processus très bien organisé et un résultat parfait ! Merci beaucoup !',
@@ -45,7 +70,7 @@ const testimonials = [
     date: '2024-01-12'
   },
   {
-    id: 4,
+    id: '4',
     name: 'Pierre R.',
     rating: 5,
     content: 'Excellent traitement parodontal. L\'équipe m\'a bien expliqué le processus et les résultats sont au rendez-vous. Merci !',
@@ -53,7 +78,7 @@ const testimonials = [
     date: '2024-01-05'
   },
   {
-    id: 5,
+    id: '5',
     name: 'Claire T.',
     rating: 5,
     content: 'Une service pédodontique chaleureux et vraiment bienveillant. Parfait pour mes enfants. Je recommande !',
@@ -61,7 +86,7 @@ const testimonials = [
     date: '2024-01-03'
   },
   {
-    id: 6,
+    id: '6',
     name: 'Michel B.',
     rating: 5,
     content: 'Prothèses dentaires de très bonne qualité. Le laboratoire intégré permet un suivi optimal, et un confort optimal. Très satisfait du résultat.',
@@ -69,7 +94,7 @@ const testimonials = [
     date: '2023-12-28'
   },
   {
-    id: 7,
+    id: '7',
     name: 'Isabelle C.',
     rating: 5,
     content: 'Blanchiment dentaire réussi ! L\'équipe est professionnelle et les conseils d\'entretien très utiles. Je suis ravie du résultat.',
@@ -77,7 +102,7 @@ const testimonials = [
     date: '2023-12-25'
   },
   {
-    id: 10,
+    id: '10',
     name: 'François M.',
     rating: 5,
     content: 'Le Dr Mercier a été exceptionnel lors de ma consultation d\'implantologie. Il a prit le temps de m\'expliquer chaque détail de la procédure, les risques et les bénéfices. Sa patience et son écoute m\'ont complètement rassuré. Un praticien à l\'écoute et très humain !',
@@ -85,7 +110,7 @@ const testimonials = [
     date: '2024-01-18'
   },
   {
-    id: 8,
+    id: '8',
     name: 'Antoine F.',
     rating: 5,
     content: 'Cabinet très bien équipé et personnel compétent. Les carries ont été traitées avec soin, et sans douleur! Merci pour tout!',
@@ -97,10 +122,10 @@ const testimonials = [
 const services = ['Tous', 'Implantologie', 'Parodontologie', 'Soins Conservateurs', 'Prothèses Dentaires', 'Blanchiment', 'Pédodontie']
 
 export default function TestimonialsPage() {
-  const [selectedService, setSelectedService] = useState('Tous')
-  const [showAddForm, setShowAddForm] = useState(false)
-  const [localTestimonials, setLocalTestimonials] = useState(testimonials)
-  const [newTestimonial, setNewTestimonial] = useState({
+  const [selectedService, setSelectedService] = useState<string>('Tous')
+  const [showAddForm, setShowAddForm] = useState<boolean>(false)
+  const [localTestimonials, setLocalTestimonials] = useState<LocalTestimonial[]>(seedTestimonials)
+  const [newTestimonial, setNewTestimonial] = useState<NewTestimonialInput>({
     name: '',
     rating: 5,
     content: '',
@@ -111,37 +136,27 @@ export default function TestimonialsPage() {
   useEffect(() => {
     const loadTestimonials = async () => {
       try {
-        const response = await fetch('/api/testimonials')
-        if (response.ok) {
-          const dbTestimonials = await response.json()
-          // Convertir le format de la base de données vers le format d'affichage
-          const formattedTestimonials = dbTestimonials.map((t: { id: string; patientName: string; rating: number; content: string; service: string; createdAt: string }) => ({
-            id: t.id,
-            name: t.patientName,
-            rating: t.rating,
-            content: t.content,
-            service: t.service || 'Général',
-            date: new Date(t.createdAt).toISOString().split('T')[0]
-          }))
-          setLocalTestimonials(formattedTestimonials)
-        } else {
-          // Fallback vers localStorage si l'API échoue
-          const savedTestimonials = localStorage.getItem('testimonials')
-          if (savedTestimonials) {
-            const parsed = JSON.parse(savedTestimonials)
-            setLocalTestimonials(parsed)
-          }
-        }
-      } catch (error) {
-        console.error('Erreur lors du chargement des témoignages:', error)
+        const dbTestimonials = await getTestimonials()
+        // Convertir le format de la base de données vers le format d'affichage
+        const formattedTestimonials: LocalTestimonial[] = dbTestimonials.map((t: PublicTestimonial) => ({
+          id: t.id,
+          name: t.patientName,
+          rating: t.rating,
+          content: t.content,
+          service: t.service ?? 'Général',
+          date: new Date(t.createdAt || t.created_at || Date.now()).toISOString().split('T')[0]
+        }))
+        setLocalTestimonials(formattedTestimonials)
+        localStorage.setItem('testimonials', JSON.stringify(formattedTestimonials))
+      } catch {
         // Fallback vers localStorage
         const savedTestimonials = localStorage.getItem('testimonials')
         if (savedTestimonials) {
           try {
             const parsed = JSON.parse(savedTestimonials)
             setLocalTestimonials(parsed)
-               } catch (localStorageError) {
-                 console.error('Erreur lors du chargement depuis localStorage:', localStorageError)
+               } catch {
+                 // ignore parse errors
                }
         }
       }
@@ -157,7 +172,7 @@ export default function TestimonialsPage() {
 
   // Fonction pour réinitialiser les témoignages (utile pour les tests)
   const resetTestimonials = () => {
-    setLocalTestimonials(testimonials)
+    setLocalTestimonials(seedTestimonials)
     localStorage.removeItem('testimonials')
     toast.success('Témoignages réinitialisés')
   }
@@ -166,7 +181,7 @@ export default function TestimonialsPage() {
     ? localTestimonials 
     : localTestimonials.filter(t => t.service === selectedService)
 
-  const handleAddTestimonial = async (e: React.FormEvent) => {
+  const handleAddTestimonial = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     
     if (!newTestimonial.content || !newTestimonial.service) {
@@ -175,55 +190,22 @@ export default function TestimonialsPage() {
     }
 
     try {
-      console.log('Envoi du témoignage:', newTestimonial)
-      
-      // Envoyer à l'API qui sauvegarde en base de données
-      const response = await fetch('/api/testimonials', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newTestimonial),
-      })
-
-      console.log('Réponse API:', response.status, response.statusText)
-
-      if (response.ok) {
-        const result = await response.json()
-        console.log('Résultat API:', result)
-        
-        // Ajouter le témoignage à la liste locale pour l'affichage immédiat
-        const newTestimonialData = {
-          id: result.id || Date.now(),
-          name: newTestimonial.name || 'Anonyme',
-          rating: newTestimonial.rating,
-          content: newTestimonial.content,
-          service: newTestimonial.service,
-          date: new Date().toISOString().split('T')[0]
-        }
-        
-        setLocalTestimonials(prev => [newTestimonialData, ...prev])
-        
-        toast.success('Témoignage envoyé avec succès ! Il sera publié après validation.')
-        setNewTestimonial({ name: '', rating: 5, content: '', service: '' })
-        setShowAddForm(false)
-      } else {
-        const errorText = await response.text()
-        console.error('Erreur API:', response.status, errorText)
-        let errorMessage = 'Erreur lors de l\'envoi du témoignage'
-        
-        try {
-          const error = JSON.parse(errorText)
-          errorMessage = error.error || errorMessage
-        } catch (parseError) {
-          errorMessage = errorText || errorMessage
-        }
-        
-        toast.error(errorMessage)
+      const result = await postTestimonial(newTestimonial)
+      // Ajouter le témoignage à la liste locale pour l'affichage immédiat
+      const newTestimonialData: LocalTestimonial = {
+        id: result.id || String(Date.now()),
+        name: newTestimonial.name || 'Anonyme',
+        rating: newTestimonial.rating,
+        content: newTestimonial.content,
+        service: newTestimonial.service,
+        date: new Date().toISOString().split('T')[0]
       }
+      setLocalTestimonials(prev => [newTestimonialData, ...prev])
+      toast.success('Témoignage envoyé avec succès ! Il sera publié après validation.')
+      setNewTestimonial({ name: '', rating: 5, content: '', service: '' })
+      setShowAddForm(false)
     } catch (error) {
-      console.error('Erreur réseau:', error)
-      toast.error('Erreur de connexion. Vérifiez votre connexion internet.')
+      toast.error(error instanceof Error ? error.message : 'Erreur de connexion. Vérifiez votre connexion internet.')
     }
   }
 

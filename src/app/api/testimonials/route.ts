@@ -1,32 +1,41 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+/**
+ * What changed & why
+ * - Switched to shared server-side Supabase client (no direct Postgres).
+ * - Replaced console logs with a tiny logger for cleaner output.
+ * - Server-side sorts results to avoid snake_case vs camelCase mismatch.
+ */
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { NextRequest, NextResponse } from 'next/server'
+import { supabaseServer as supabase } from '@/lib/supabaseServer'
+import { logger } from '@/lib/logger'
 
 export async function GET() {
   try {
-    console.log('GET /api/testimonials - Starting...')
-    
+    logger.info('GET /api/testimonials - starting')
+
     const { data: testimonials, error } = await supabase
       .from('testimonials')
       .select('*')
-      .order('createdAt', { ascending: false })
 
     if (error) {
-      console.error('Supabase error:', error)
+      logger.error('Supabase error:', error)
       return NextResponse.json(
         { error: 'Erreur lors de la récupération des témoignages' },
         { status: 500 }
       )
     }
 
-    console.log('Found testimonials:', testimonials?.length || 0)
-    return NextResponse.json(testimonials || [])
+    type TestimonialRow = { createdAt?: string; created_at?: string }
+    const list = (testimonials || []).sort((a: TestimonialRow, b: TestimonialRow) => {
+      const aDate = new Date(a.createdAt || a.created_at || 0).getTime()
+      const bDate = new Date(b.createdAt || b.created_at || 0).getTime()
+      return bDate - aDate
+    })
+
+    logger.info('Found testimonials:', list.length)
+    return NextResponse.json(list)
   } catch (error) {
-    console.error('Error fetching testimonials:', error)
+    logger.error('Error fetching testimonials:', error)
     return NextResponse.json(
       { error: 'Erreur lors de la récupération des témoignages' },
       { status: 500 }
@@ -36,7 +45,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('POST /api/testimonials - Starting...')
+    logger.info('POST /api/testimonials - starting')
     
     const body = await request.json()
     const { name, rating, content, service } = body
@@ -56,8 +65,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Save to database using Supabase
-    const { data: testimonial, error } = await supabase
+    // Save to database using Supabase. Use returning: 'minimal' to avoid
+    // requiring SELECT permission when RLS allows only INSERT.
+    const { error } = await supabase
       .from('testimonials')
       .insert({
         patientName: name || 'Anonyme',
@@ -65,30 +75,26 @@ export async function POST(request: NextRequest) {
         content,
         service: service || 'Général',
         isApproved: false // Will be approved by admin
-      })
-      .select()
-      .single()
+      }, { returning: 'minimal' })
 
     if (error) {
-      console.error('Supabase error:', error)
+      logger.error('Supabase insert error:', error)
+      const devDetails = process.env.NODE_ENV !== 'production' ? { details: error.message } : {}
       return NextResponse.json(
-        { error: 'Erreur lors de la sauvegarde du témoignage' },
+        { error: 'Erreur lors de la sauvegarde du témoignage', ...devDetails },
         { status: 500 }
       )
     }
 
-    console.log('New testimonial submission:', testimonial)
-
     return NextResponse.json(
       { 
-        message: 'Témoignage envoyé avec succès. Il sera publié après validation.',
-        id: testimonial.id 
+        message: 'Témoignage envoyé avec succès. Il sera publié après validation.'
       },
       { status: 201 }
     )
 
   } catch (error) {
-    console.error('Error processing testimonial:', error)
+    logger.error('Error processing testimonial:', error)
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }

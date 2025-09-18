@@ -1,5 +1,10 @@
 'use client'
 
+/**
+ * What changed & why
+ * - Retains client component; tests now use Vite React plugin so no need for explicit React import.
+ */
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'

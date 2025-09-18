@@ -3,8 +3,11 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+/**
+ * What changed & why
+ * - Removed commented Clerk import to reduce noise.
+ */
 import { Toaster } from "@/components/ui/sonner";
-// import { ClerkProvider } from '@clerk/nextjs';
 
 const inter = Inter({
   subsets: ["latin"],

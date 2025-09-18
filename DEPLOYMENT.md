@@ -3,8 +3,8 @@
 ## Prérequis
 
 1. **Compte Vercel** : Créez un compte sur [vercel.com](https://vercel.com)
-2. **Base de données** : Configurez une base de données PostgreSQL (Supabase, PlanetScale, ou Neon)
-3. **Variables d'environnement** : Préparez vos clés API
+2. **Base de données** : Créez un projet **Supabase** (recommandé)
+3. **Variables d'environnement** : Préparez vos clés Supabase et API
 
 ## 📋 Étapes de Déploiement
 
@@ -20,32 +20,23 @@ npm install -g vercel
 vercel login
 ```
 
-### 3. Configuration de la Base de Données
+### 3. Configuration Supabase
 
-#### Option A : Supabase (Recommandé)
 1. Créez un projet sur [supabase.com](https://supabase.com)
-2. Récupérez l'URL de connexion dans Settings > Database
-3. Exécutez les migrations Prisma :
-
-```bash
-npx prisma db push
-```
-
-#### Option B : Autre PostgreSQL
-1. Créez une base de données PostgreSQL
-2. Mettez à jour `DATABASE_URL` dans vos variables d'environnement
+2. Copiez `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+3. Générez une `SUPABASE_SERVICE_ROLE_KEY` (usage serveur uniquement)
+4. Créez la table `testimonials` et policies (voir `DATABASE_SETUP.md` — section "Supabase JS (Actuel)")
 
 ### 4. Variables d'Environnement
 
 Configurez ces variables dans Vercel Dashboard > Settings > Environment Variables :
 
 #### Obligatoires
-- `DATABASE_URL` : URL de votre base de données PostgreSQL
-
-#### Optionnelles
 - `NEXT_PUBLIC_SUPABASE_URL` : URL Supabase
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` : Clé anonyme Supabase
-- `SUPABASE_SERVICE_ROLE_KEY` : Clé de service Supabase
+- `SUPABASE_SERVICE_ROLE_KEY` : Clé de service Supabase (serveur seulement)
+
+#### Optionnelles
 - `SMTP_HOST` : Serveur SMTP pour les emails
 - `SMTP_PORT` : Port SMTP (587)
 - `SMTP_USER` : Email d'envoi
@@ -74,14 +65,8 @@ vercel --prod
 
 ## 🔧 Configuration Post-Déploiement
 
-### 1. Base de Données
-```bash
-# Générer le client Prisma
-npx prisma generate
-
-# Appliquer les migrations
-npx prisma db push
-```
+- Vérifiez que les 3 variables Supabase sont présentes et correctes
+- Testez l'API `/api/testimonials` (GET et POST)
 
 ### 2. Vérification
 - Testez toutes les pages
@@ -95,8 +80,9 @@ npx prisma db push
 - Vérifiez la configuration de la base de données
 
 ### Erreur de Base de Données
-- Vérifiez que `DATABASE_URL` est correct
-- Vérifiez que la base de données est accessible depuis Vercel
+- Vérifiez les policies RLS sur la table `testimonials`
+- Si vous utilisez la clé anonyme pour POST, autorisez `insert` pour `anon`
+- Sinon, configurez `SUPABASE_SERVICE_ROLE_KEY` côté serveur
 
 ### Images ne s'affichent pas
 - Vérifiez la configuration `images` dans `next.config.ts`
@@ -118,5 +104,5 @@ Pour mettre à jour le site :
 ## 📞 Support
 
 - [Documentation Vercel](https://vercel.com/docs)
-- [Documentation Prisma](https://www.prisma.io/docs)
 - [Documentation Next.js](https://nextjs.org/docs)
+ - [Documentation Supabase](https://supabase.com/docs)
