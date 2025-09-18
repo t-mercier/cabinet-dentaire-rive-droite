@@ -5,10 +5,6 @@
 /.pnp
 .pnp.*
 .yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
 
 # testing
 /coverage
@@ -23,6 +19,11 @@
 # misc
 .DS_Store
 *.pem
+package-lock.json
+/.idea/
+/.pnpm-store
+
+
 
 # debug
 npm-debug.log*
@@ -41,11 +42,3 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
-
-README.md
-DATABASE_SETUP.md
-DEPLOYMENT.md
-*.md
-scripts/deploy.sh
-scripts/setup-database.sh
-scripts/build-db-url.js

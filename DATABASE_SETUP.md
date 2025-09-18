@@ -1,5 +1,71 @@
 # 🗄️ Configuration de la Base de Données
 
+> Mise à jour: l’application n’utilise plus de connexions Postgres directes (Prisma). Toute la persistance passe par le client Supabase JS, côté client et côté serveur. Les sections Prisma ci‑dessous sont conservées à titre informatif mais ne sont plus requises.
+
+## Supabase JS (Actuel)
+
+1) Variables d’environnement
+
+- `NEXT_PUBLIC_SUPABASE_URL` — URL du projet Supabase
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — clé anonyme (exposée côté client)
+- `SUPABASE_SERVICE_ROLE_KEY` — clé service role (uniquement côté serveur, pour les routes API). Ne la rendez jamais publique.
+
+2) Table `testimonials`
+
+Exécutez ce SQL dans SQL Editor (Supabase):
+
+```sql
+create table if not exists public.testimonials (
+  id uuid primary key default gen_random_uuid(),
+  patientName text not null,
+  rating smallint not null check (rating between 1 and 5),
+  content text not null,
+  service text,
+  isApproved boolean not null default false,
+  createdAt timestamptz not null default now(),
+  updatedAt timestamptz not null default now()
+);
+
+alter table public.testimonials enable row level security;
+
+-- Lecture publique (facultatif si vous servez depuis une route serveur avec service key)
+create policy if not exists "testimonials_select_public"
+  on public.testimonials
+  for select
+  to anon, authenticated
+  using (true);
+
+-- Insertion publique (si vous souhaitez autoriser l’envoi sans authentification)
+-- Sinon, utilisez la service role key côté serveur et omettez cette policy.
+create policy if not exists "testimonials_insert_public"
+  on public.testimonials
+  for insert
+  to anon
+  with check (
+    rating between 1 and 5
+  );
+
+-- Trigger pour updatedAt (optionnel)
+create or replace function public.set_updated_at()
+returns trigger as $$
+begin
+  new."updatedAt" = now();
+  return new;
+end;
+$$ language plpgsql;
+
+drop trigger if exists trg_set_updated_at on public.testimonials;
+create trigger trg_set_updated_at
+before update on public.testimonials
+for each row execute procedure public.set_updated_at();
+```
+
+3) Déploiement
+
+- Ajoutez les trois variables d’environnement à votre hébergeur (Vercel, etc.).
+- Les routes API utilisent la `SUPABASE_SERVICE_ROLE_KEY` si présente, sinon elles basculent sur la clé anonyme.
+
+
 ## Option 1 : Supabase (Recommandé - Gratuit)
 
 ### 1. Créer un compte Supabase
@@ -26,33 +92,22 @@ Une fois le projet créé (2-3 minutes) :
 
 ### 4. Configurer les variables d'environnement
 
-Créez un fichier `.env.local` à la racine du projet :
+Créez un fichier `.env.local` à la racine du projet et ajoutez:
 
 ```bash
-# Exécutez ce script pour créer le fichier
-./scripts/setup-database.sh
+NEXT_PUBLIC_SUPABASE_URL="https://<project-ref>.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="<anon-key>"
+# Facultatif mais recommandé pour les routes API serveur
+SUPABASE_SERVICE_ROLE_KEY="<service-role-key>"
 ```
 
-Puis éditez `.env.local` et remplacez :
-- `[YOUR-PASSWORD]` par votre mot de passe Supabase
-- `[YOUR-PROJECT-REF]` par l'ID de votre projet
+### 5. Créer la table
 
-### 5. Appliquer le schéma à la base de données
-
-```bash
-# Générer le client Prisma
-pnpm db:generate
-
-# Appliquer le schéma à la base de données
-pnpm db:push
-```
+Utilisez le bloc SQL fourni plus haut dans "Supabase JS (Actuel) > Table testimonials" dans l'éditeur SQL de Supabase.
 
 ### 6. Vérifier la connexion
 
-```bash
-# Ouvrir Prisma Studio pour voir les données
-pnpm db:studio
-```
+Dans l'éditeur SQL, exécutez `select * from public.testimonials limit 1;` pour valider que la table existe.
 
 ## Option 2 : Neon (Alternative)
 
@@ -106,22 +161,7 @@ Une fois la base de données configurée :
 
 ## 🔧 Commandes utiles
 
-```bash
-# Générer le client Prisma
-pnpm db:generate
-
-# Appliquer les migrations
-pnpm db:push
-
-# Créer une migration
-pnpm db:migrate
-
-# Ouvrir Prisma Studio
-pnpm db:studio
-
-# Réinitialiser la base de données
-pnpm db:push --force-reset
-```
+Toutes les interactions se font depuis l'interface Supabase (SQL Editor, Table Editor) ou via le client JS dans le code. Aucune commande Prisma n'est nécessaire.
 
 ## 🆘 Dépannage
 
@@ -130,10 +170,6 @@ pnpm db:push --force-reset
 - Vérifiez que le mot de passe est correct
 - Vérifiez que la base de données est accessible
 
-### Erreur de schéma
-- Vérifiez que le schéma Prisma est correct
-- Exécutez `pnpm db:generate` après modification du schéma
-
 ### Erreur de permissions
-- Vérifiez que l'utilisateur a les bonnes permissions
-- Pour Supabase, utilisez l'utilisateur `postgres`
+- Si vous utilisez la clé anonyme, créez des policies RLS adaptées pour `select/insert`.
+- Sinon, placez `SUPABASE_SERVICE_ROLE_KEY` dans l'environnement des routes API (jamais côté client).

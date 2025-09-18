@@ -1,3 +1,9 @@
+/**
+ * What changed & why
+ * - Keep a single ESLint flat config (remove legacy .eslintrc.json).
+ * - Keep rules minimal: Next + TypeScript + small tweaks.
+ */
+
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { FlatCompat } from "@eslint/eslintrc";
