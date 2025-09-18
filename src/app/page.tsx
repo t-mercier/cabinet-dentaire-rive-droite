@@ -16,6 +16,7 @@ import {
   Sparkles,
   Users
 } from 'lucide-react'
+import { staticTestimonials } from '@/lib/data/staticTestimonials'
 
 const services = [
   {
@@ -68,28 +69,8 @@ const services = [
   }
 ]
 
-const testimonials = [
-  {
-    name: 'Marie L.',
-    rating: 5,
-    content: 'Excellent accueil et soins de qualité. L\'équipe est très professionnelle et à l\'écoute.'
-  },
-  {
-    name: 'Jean-Pierre D.',
-    rating: 5,
-    content: 'Cabinet moderne et équipe très compétente. Je recommande vivement !'
-  },
-  {
-    name: 'Sophie M.',
-    rating: 5,
-    content: 'Très satisfaite de mes soins d\'implantologie. Résultat parfait !'
-  },
-  {
-    name: 'Catherine L.',
-    rating: 5,
-    content: 'Le Dr Mercier a posé un implant parfaitement. Il m\'a expliqué chaque étape et m\'a rassurée. Excellent !'
-  }
-]
+// Use static testimonials from shared data
+const testimonials = staticTestimonials.slice(0, 4) // Show first 4 on homepage
 
 export default function Home() {
   return (

@@ -20,6 +20,7 @@ import type { Testimonial } from '@/types/testimonials'
 import { TestimonialCard } from '@/components/testimonials/TestimonialCard'
 import { TestimonialForm } from '@/components/testimonials/TestimonialForm'
 import { ServiceFilter } from '@/components/testimonials/ServiceFilter'
+import { staticTestimonials } from '@/lib/data/staticTestimonials'
 
 // UI-facing testimonial type for display
 type LocalTestimonial = {
@@ -29,90 +30,11 @@ type LocalTestimonial = {
   content: string
   service: string
   date: string
+  isStatic: boolean
 }
 
-const seedTestimonials: LocalTestimonial[] = [
-  {
-    id: '1',
-    name: 'Marie L.',
-    rating: 5,
-    content: 'Excellent accueil et soins de qualité. Détartrage parfait et l\'équipe a très bien soigné les caries de mes enfants. L\'équipe est très professionnelle et à l\'écoute. Je recommande vivement ce cabinet.',
-    service: 'Soins Conservateurs',
-    date: '2024-01-15'
-  },
-  {
-    id: '2',
-    name: 'Jean-Pierre D.',
-    rating: 5,
-    content: 'Cabinet moderne et équipe ultra compétente. Les soins d\'implantologie ont été parfaitement réalisés. Je suis très satisfait du résultat.',
-    service: 'Implantologie',
-    date: '2024-01-10'
-  },
-  {
-    id: '3',
-    name: 'Sophie M.',
-    rating: 5,
-    content: 'Très satisfaite de mes soins d\'implantologie. L\'équipe est à l\'écoute et le résultat est parfait. Je recommande sans hésitation.',
-    service: 'Implantologie',
-    date: '2024-01-08'
-  },
-  {
-    id: '9',
-    name: 'Catherine L.',
-    rating: 5,
-    content: 'Le Dr Mercier m\'a posé un implant dentaire la semaine dernière, il a pris le temps de m\'expliquer chaque étape de façon très claire, et m\'a rassurée tout au long du processus. Un processus très bien organisé et un résultat parfait ! Merci beaucoup !',
-    service: 'Implantologie',
-    date: '2024-01-12'
-  },
-  {
-    id: '4',
-    name: 'Pierre R.',
-    rating: 5,
-    content: 'Excellent traitement parodontal. L\'équipe m\'a bien expliqué le processus et les résultats sont au rendez-vous. Merci !',
-    service: 'Parodontologie',
-    date: '2024-01-05'
-  },
-  {
-    id: '5',
-    name: 'Claire T.',
-    rating: 5,
-    content: 'Une service pédodontique chaleureux et vraiment bienveillant. Parfait pour mes enfants. Je recommande !',
-    service: 'Pédodontie',
-    date: '2024-01-03'
-  },
-  {
-    id: '6',
-    name: 'Michel B.',
-    rating: 5,
-    content: 'Prothèses dentaires de très bonne qualité. Le laboratoire intégré permet un suivi optimal, et un confort optimal. Très satisfait du résultat.',
-    service: 'Prothèses Dentaires',
-    date: '2023-12-28'
-  },
-  {
-    id: '7',
-    name: 'Isabelle C.',
-    rating: 5,
-    content: 'Blanchiment dentaire réussi ! L\'équipe est professionnelle et les conseils d\'entretien très utiles. Je suis ravie du résultat.',
-    service: 'Blanchiment',
-    date: '2023-12-25'
-  },
-  {
-    id: '10',
-    name: 'François M.',
-    rating: 5,
-    content: 'Le Dr Mercier a été exceptionnel lors de ma consultation d\'implantologie. Il a prit le temps de m\'expliquer chaque détail de la procédure, les risques et les bénéfices. Sa patience et son écoute m\'ont complètement rassuré. Un praticien à l\'écoute et très humain !',
-    service: 'Implantologie',
-    date: '2024-01-18'
-  },
-  {
-    id: '8',
-    name: 'Antoine F.',
-    rating: 5,
-    content: 'Cabinet très bien équipé et personnel compétent. Les carries ont été traitées avec soin, et sans douleur! Merci pour tout!',
-    service: 'Soins Conservateurs',
-    date: '2023-12-20'
-  }
-]
+// Use static testimonials as seed data instead of hardcoded array
+const seedTestimonials: LocalTestimonial[] = staticTestimonials
 
 // Remove the services array as it's now in ServiceFilter component
 
@@ -124,34 +46,6 @@ export default function TestimonialsPage() {
 
   // Charger les témoignages depuis la base de données au montage du composant
   useEffect(() => {
-    const loadTestimonials = async () => {
-      try {
-        const dbTestimonials = await getTestimonials()
-        // Convertir le format de la base de données vers le format d'affichage
-        const formattedTestimonials: LocalTestimonial[] = dbTestimonials.map((t: Testimonial) => ({
-          id: t.id || '',
-          name: t.patientName,
-          rating: t.rating,
-          content: t.content,
-          service: t.service ?? 'Général',
-          date: new Date(t.createdAt || t.created_at || Date.now()).toISOString().split('T')[0]
-        }))
-        setLocalTestimonials(formattedTestimonials)
-        localStorage.setItem('testimonials', JSON.stringify(formattedTestimonials))
-      } catch {
-        // Fallback vers localStorage
-        const savedTestimonials = localStorage.getItem('testimonials')
-        if (savedTestimonials) {
-          try {
-            const parsed = JSON.parse(savedTestimonials)
-            setLocalTestimonials(parsed)
-               } catch {
-                 // ignore parse errors
-               }
-        }
-      }
-    }
-
     loadTestimonials()
   }, [])
 
@@ -172,6 +66,9 @@ export default function TestimonialsPage() {
     : localTestimonials.filter(t => t.service === selectedService)
 
   const loadTestimonials = async () => {
+    // Toujours commencer avec les témoignages statiques
+    let combinedTestimonials = [...staticTestimonials]
+    
     try {
       const dbTestimonials = await getTestimonials()
       // Convertir le format de la base de données vers le format d'affichage
@@ -181,21 +78,20 @@ export default function TestimonialsPage() {
         rating: t.rating,
         content: t.content,
         service: t.service ?? 'Général',
-        date: new Date(t.createdAt || t.created_at || Date.now()).toISOString().split('T')[0]
+        date: new Date(t.createdAt || t.created_at || Date.now()).toISOString().split('T')[0],
+        isStatic: false // Marquer comme témoignage de la DB
       }))
-      setLocalTestimonials(formattedTestimonials)
-      localStorage.setItem('testimonials', JSON.stringify(formattedTestimonials))
-    } catch {
-      // Fallback vers localStorage
-      const savedTestimonials = localStorage.getItem('testimonials')
-      if (savedTestimonials) {
-        try {
-          setLocalTestimonials(JSON.parse(savedTestimonials))
-        } catch {
-          // ignore parse errors
-        }
-      }
+      
+      // Ajouter les témoignages de la DB aux témoignages statiques
+      combinedTestimonials = [...staticTestimonials, ...formattedTestimonials]
+      
+    } catch (error) {
+      // En cas d'erreur, garder seulement les témoignages statiques
+      console.log('Erreur lors du chargement des témoignages:', error)
     }
+    
+    setLocalTestimonials(combinedTestimonials)
+    localStorage.setItem('testimonials', JSON.stringify(combinedTestimonials))
   }
 
   const handleTestimonialSuccess = () => {

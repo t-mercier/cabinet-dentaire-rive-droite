@@ -17,6 +17,7 @@ interface TestimonialCardProps {
     content: string
     service: string
     date: string
+    isStatic: boolean
   }
 }
 

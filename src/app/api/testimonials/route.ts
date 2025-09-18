@@ -17,6 +17,7 @@ export async function GET() {
     const { data: testimonials, error } = await supabaseServer
       .from('testimonials')
       .select('*')
+      .eq('isApproved', true)
 
     if (error) {
       logger.error('Supabase error:', error)
