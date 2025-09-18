@@ -51,7 +51,6 @@ next-env.d.ts
 # documentation files (keep private)
 *.md
 !README.md
-!DEPLOYMENT.md
 
 # scripts and setup files
 scripts/
@@ -68,4 +67,5 @@ SUPABASE_*.md
 # IDE files
 *.swp
 *.swo
+*.md
 *~
