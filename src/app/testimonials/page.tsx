@@ -11,15 +11,17 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { 
-  Star, 
   Plus,
-  Filter,
   MessageSquare
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { getTestimonials, postTestimonial, type PublicTestimonial } from '@/lib/api/testimonials'
+import { getTestimonials } from '@/lib/api/testimonials'
+import type { Testimonial } from '@/types/testimonials'
+import { TestimonialCard } from '@/components/testimonials/TestimonialCard'
+import { TestimonialForm } from '@/components/testimonials/TestimonialForm'
+import { ServiceFilter } from '@/components/testimonials/ServiceFilter'
 
-// UI-facing testimonial type and inputs
+// UI-facing testimonial type for display
 type LocalTestimonial = {
   id: string
   name: string
@@ -27,13 +29,6 @@ type LocalTestimonial = {
   content: string
   service: string
   date: string
-}
-
-type NewTestimonialInput = {
-  name: string
-  rating: number
-  content: string
-  service: string
 }
 
 const seedTestimonials: LocalTestimonial[] = [
@@ -119,18 +114,13 @@ const seedTestimonials: LocalTestimonial[] = [
   }
 ]
 
-const services = ['Tous', 'Implantologie', 'Parodontologie', 'Soins Conservateurs', 'Prothèses Dentaires', 'Blanchiment', 'Pédodontie']
+// Remove the services array as it's now in ServiceFilter component
 
 export default function TestimonialsPage() {
   const [selectedService, setSelectedService] = useState<string>('Tous')
   const [showAddForm, setShowAddForm] = useState<boolean>(false)
   const [localTestimonials, setLocalTestimonials] = useState<LocalTestimonial[]>(seedTestimonials)
-  const [newTestimonial, setNewTestimonial] = useState<NewTestimonialInput>({
-    name: '',
-    rating: 5,
-    content: '',
-    service: ''
-  })
+  // Removed newTestimonial state - now handled in TestimonialForm component
 
   // Charger les témoignages depuis la base de données au montage du composant
   useEffect(() => {
@@ -138,8 +128,8 @@ export default function TestimonialsPage() {
       try {
         const dbTestimonials = await getTestimonials()
         // Convertir le format de la base de données vers le format d'affichage
-        const formattedTestimonials: LocalTestimonial[] = dbTestimonials.map((t: PublicTestimonial) => ({
-          id: t.id,
+        const formattedTestimonials: LocalTestimonial[] = dbTestimonials.map((t: Testimonial) => ({
+          id: t.id || '',
           name: t.patientName,
           rating: t.rating,
           content: t.content,
@@ -181,32 +171,37 @@ export default function TestimonialsPage() {
     ? localTestimonials 
     : localTestimonials.filter(t => t.service === selectedService)
 
-  const handleAddTestimonial = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    
-    if (!newTestimonial.content || !newTestimonial.service) {
-      toast.error('Veuillez remplir tous les champs obligatoires')
-      return
-    }
-
+  const loadTestimonials = async () => {
     try {
-      const result = await postTestimonial(newTestimonial)
-      // Ajouter le témoignage à la liste locale pour l'affichage immédiat
-      const newTestimonialData: LocalTestimonial = {
-        id: result.id || String(Date.now()),
-        name: newTestimonial.name || 'Anonyme',
-        rating: newTestimonial.rating,
-        content: newTestimonial.content,
-        service: newTestimonial.service,
-        date: new Date().toISOString().split('T')[0]
+      const dbTestimonials = await getTestimonials()
+      // Convertir le format de la base de données vers le format d'affichage
+      const formattedTestimonials: LocalTestimonial[] = dbTestimonials.map((t: Testimonial) => ({
+        id: t.id || '',
+        name: t.patientName,
+        rating: t.rating,
+        content: t.content,
+        service: t.service ?? 'Général',
+        date: new Date(t.createdAt || t.created_at || Date.now()).toISOString().split('T')[0]
+      }))
+      setLocalTestimonials(formattedTestimonials)
+      localStorage.setItem('testimonials', JSON.stringify(formattedTestimonials))
+    } catch {
+      // Fallback vers localStorage
+      const savedTestimonials = localStorage.getItem('testimonials')
+      if (savedTestimonials) {
+        try {
+          setLocalTestimonials(JSON.parse(savedTestimonials))
+        } catch {
+          // ignore parse errors
+        }
       }
-      setLocalTestimonials(prev => [newTestimonialData, ...prev])
-      toast.success('Témoignage envoyé avec succès ! Il sera publié après validation.')
-      setNewTestimonial({ name: '', rating: 5, content: '', service: '' })
-      setShowAddForm(false)
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erreur de connexion. Vérifiez votre connexion internet.')
     }
+  }
+
+  const handleTestimonialSuccess = () => {
+    setShowAddForm(false)
+    // Reload testimonials from database
+    loadTestimonials()
   }
 
   return (
@@ -257,21 +252,10 @@ export default function TestimonialsPage() {
 
         {/* Filters and Add Button */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-          <div className="flex items-center gap-4">
-            <Filter className="w-5 h-5 text-gray-500" />
-            <div className="flex flex-wrap gap-2">
-              {services.map((service) => (
-                <Button
-                  key={service}
-                  variant={selectedService === service ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setSelectedService(service)}
-                >
-                  {service}
-                </Button>
-              ))}
-            </div>
-          </div>
+          <ServiceFilter 
+            selectedService={selectedService}
+            onServiceChange={setSelectedService}
+          />
           <div className="flex gap-2">
             <Button 
               onClick={() => setShowAddForm(!showAddForm)}
@@ -294,135 +278,21 @@ export default function TestimonialsPage() {
 
         {/* Add Testimonial Form */}
         {showAddForm && (
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <MessageSquare className="w-5 h-5 mr-2" />
-                Ajouter votre témoignage
-              </CardTitle>
-              <CardDescription>
-                Partagez votre expérience avec nos soins dentaires
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleAddTestimonial} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                      Nom (optionnel)
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      value={newTestimonial.name}
-                      onChange={(e) => setNewTestimonial({...newTestimonial, name: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Votre nom ou initiales"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="service" className="block text-sm font-medium text-gray-700 mb-2">
-                      Service concerné
-                    </label>
-                    <select
-                      id="service"
-                      value={newTestimonial.service}
-                      onChange={(e) => setNewTestimonial({...newTestimonial, service: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Sélectionnez un service</option>
-                      <option value="Implantologie">Implantologie</option>
-                      <option value="Parodontologie">Parodontologie</option>
-                      <option value="Soins Conservateurs">Soins Conservateurs</option>
-                      <option value="Prothèses Dentaires">Prothèses Dentaires</option>
-                      <option value="Blanchiment">Blanchiment</option>
-                      <option value="Pédodontie">Pédodontie</option>
-                    </select>
-                  </div>
-                </div>
-                
-                <div>
-                  <label htmlFor="rating" className="block text-sm font-medium text-gray-700 mb-2">
-                    Note
-                  </label>
-                  <div className="flex items-center gap-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => setNewTestimonial({...newTestimonial, rating: star})}
-                        className="focus:outline-none"
-                      >
-                        <Star 
-                          className={`w-6 h-6 ${
-                            star <= newTestimonial.rating 
-                              ? 'text-yellow-400 fill-current' 
-                              : 'text-gray-300'
-                          }`} 
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
-                    Votre témoignage
-                  </label>
-                  <textarea
-                    id="content"
-                    rows={4}
-                    value={newTestimonial.content}
-                    onChange={(e) => setNewTestimonial({...newTestimonial, content: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Partagez votre expérience..."
-                    required
-                  />
-                </div>
-
-                <div className="flex gap-4">
-                  <Button type="submit" className="bg-green-600 hover:bg-green-700">
-                    Envoyer le témoignage
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => setShowAddForm(false)}
-                  >
-                    Annuler
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
+          <div className="mb-8">
+            <TestimonialForm 
+              onSuccess={handleTestimonialSuccess}
+              onCancel={() => setShowAddForm(false)}
+            />
+          </div>
         )}
 
         {/* Testimonials Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredTestimonials.map((testimonial) => (
-            <Card key={testimonial.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                    ))}
-                  </div>
-                  <span className="text-sm text-gray-500">
-                    {new Date(testimonial.date).toLocaleDateString('fr-FR')}
-                  </span>
-                </div>
-                <CardTitle className="text-lg">{testimonial.name}</CardTitle>
-                <CardDescription className="text-blue-600 font-medium">
-                  {testimonial.service}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 italic">
-                  "{testimonial.content}"
-                </p>
-              </CardContent>
-            </Card>
+            <TestimonialCard 
+              key={testimonial.id} 
+              testimonial={testimonial} 
+            />
           ))}
         </div>
 
