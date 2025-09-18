@@ -44,7 +44,7 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-gray-700 hover:text-blue-600 transition-colors">
+            <Link href="/" className="text-sm text-gray-700 hover:text-blue-600 transition-colors">
               Accueil
             </Link>
             
@@ -70,10 +70,10 @@ export default function Header() {
               </NavigationMenuList>
             </NavigationMenu>
 
-            <Link href="/testimonials" className="text-gray-700 hover:text-blue-600 transition-colors">
+            <Link href="/testimonials" className="text-sm text-gray-700 hover:text-blue-600 transition-colors">
               Témoignages
             </Link>
-            <Link href="/contact" className="text-gray-700 hover:text-blue-600 transition-colors">
+            <Link href="/contact" className="text-sm text-gray-700 hover:text-blue-600 transition-colors">
               Contact
             </Link>
           </nav>
