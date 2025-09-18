@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
         rating,
         content,
         service: service || 'Général',
-        isApproved: false // Will be approved by admin
+        isApproved: true // Auto-approve for now
       })
 
     if (error) {
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { 
-        message: 'Témoignage envoyé avec succès. Il sera publié après validation.'
+        message: 'Témoignage publié avec succès!'
       },
       { status: 201 }
     )
