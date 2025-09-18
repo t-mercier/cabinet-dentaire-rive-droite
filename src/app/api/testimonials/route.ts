@@ -6,14 +6,15 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseServer as supabase } from '@/lib/supabaseServer'
+import { supabaseServer } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
+import type { Testimonial, NewTestimonialInput } from '@/types/testimonials'
 
 export async function GET() {
   try {
     logger.info('GET /api/testimonials - starting')
 
-    const { data: testimonials, error } = await supabase
+    const { data: testimonials, error } = await supabaseServer
       .from('testimonials')
       .select('*')
 
@@ -25,8 +26,7 @@ export async function GET() {
       )
     }
 
-    type TestimonialRow = { createdAt?: string; created_at?: string }
-    const list = (testimonials || []).sort((a: TestimonialRow, b: TestimonialRow) => {
+    const list = (testimonials || []).sort((a: Testimonial, b: Testimonial) => {
       const aDate = new Date(a.createdAt || a.created_at || 0).getTime()
       const bDate = new Date(b.createdAt || b.created_at || 0).getTime()
       return bDate - aDate
@@ -65,9 +65,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Save to database using Supabase. Use returning: 'minimal' to avoid
-    // requiring SELECT permission when RLS allows only INSERT.
-    const { error } = await supabase
+    // Save to database using Supabase
+    const { error } = await supabaseServer
       .from('testimonials')
       .insert({
         patientName: name || 'Anonyme',
@@ -75,7 +74,7 @@ export async function POST(request: NextRequest) {
         content,
         service: service || 'Général',
         isApproved: false // Will be approved by admin
-      }, { returning: 'minimal' })
+      })
 
     if (error) {
       logger.error('Supabase insert error:', error)

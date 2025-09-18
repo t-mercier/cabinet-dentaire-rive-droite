@@ -1,24 +1,18 @@
 /**
- * What changed & why
- * - Centralized API calls for testimonials used by the UI.
- * - Keeps fetch/JSON handling in one place, with small helpers.
+ * Client-side API helpers for testimonials.
+ * 
+ * Purpose: Centralized fetch calls for testimonials API
+ * Usage: Import in client components for data fetching
+ * Security: Uses public API routes only
  */
 
-export type PublicTestimonial = {
-  id: string
-  patientName: string
-  rating: number
-  content: string
-  service?: string | null
-  createdAt?: string
-  created_at?: string
-}
+import type { Testimonial, NewTestimonialInput, TestimonialResponse } from '@/types/testimonials'
 
 /**
  * Fetch testimonials from the server API.
  * Returns parsed JSON or throws on HTTP error.
  */
-export async function getTestimonials(): Promise<PublicTestimonial[]> {
+export async function getTestimonials(): Promise<Testimonial[]> {
   const res = await fetch('/api/testimonials', { cache: 'no-store' })
   if (!res.ok) throw new Error(await res.text())
   return res.json()
@@ -28,12 +22,7 @@ export async function getTestimonials(): Promise<PublicTestimonial[]> {
  * Submit a new testimonial to the server API.
  * Returns created record metadata or throws on HTTP error.
  */
-export async function postTestimonial(input: {
-  name?: string
-  rating: number
-  content: string
-  service: string
-}): Promise<{ message: string; id?: string }> {
+export async function postTestimonial(input: NewTestimonialInput): Promise<TestimonialResponse> {
   const res = await fetch('/api/testimonials', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
