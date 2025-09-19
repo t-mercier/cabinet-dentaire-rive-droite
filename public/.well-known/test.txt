@@ -1,0 +1,2 @@
+SSL verification test file
+This file is used to verify that the /.well-known path is accessible for SSL certificate renewal.
