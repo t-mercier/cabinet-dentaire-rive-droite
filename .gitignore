@@ -69,3 +69,6 @@ SUPABASE_*.md
 *.swo
 *.md
 *~
+
+.devcontainer/
+.devcontainer/
