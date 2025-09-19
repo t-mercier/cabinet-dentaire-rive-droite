@@ -28,15 +28,15 @@ export default function Header() {
   return (
     <header className="bg-white shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center">
               <Image
-                src="/logo.png"
+                src="/logo_small.png"
                 alt="Cabinet Dentaire Rive Droite"
-                width={200}
-                height={80}
+                width={120}
+                height={48}
                 className="h-12 w-auto"
               />
             </Link>
