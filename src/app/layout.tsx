@@ -3,9 +3,11 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import CookieBanner from "@/components/CookieBanner";
 /**
  * What changed & why
  * - Removed commented Clerk import to reduce noise.
+ * - Added CookieBanner for GDPR compliance.
  */
 import { Toaster } from "@/components/ui/sonner";
 
@@ -51,6 +53,7 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        <CookieBanner />
         <Toaster />
       </body>
     </html>

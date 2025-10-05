@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Phone, Mail, MapPin, Clock, AlertCircle } from 'lucide-react'
+import { Phone, Mail, MapPin, Clock } from 'lucide-react'
 
 const services = [
   { name: 'Implantologie', href: '/services/implantologie' },
@@ -70,23 +70,14 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Hours & Emergency */}
+          {/* Hours */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Horaires</h3>
-            <div className="space-y-3">
-              <div className="flex items-center">
-                <Clock className="w-4 h-4 mr-3 text-blue-400" />
-                <div className="text-gray-300 text-sm">
-                  <div>Lun - Ven: 09:00 - 12:30</div>
-                  <div>14:00 - 19:30</div>
-                </div>
-              </div>
-              <div className="flex items-start">
-                <AlertCircle className="w-4 h-4 mr-3 text-red-400 mt-0.5" />
-                <div className="text-gray-300 text-sm">
-                  <div className="font-medium text-red-400">Urgences</div>
-                  <div>Appelez le 05.56.86.29.00</div>
-                </div>
+            <div className="flex items-center">
+              <Clock className="w-4 h-4 mr-3 text-blue-400" />
+              <div className="text-gray-300 text-sm">
+                <div>Lun - Ven: 09:00 - 12:30</div>
+                <div>14:00 - 19:30</div>
               </div>
             </div>
           </div>
@@ -97,6 +88,16 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-gray-400 text-sm">
               © 2024 Cabinet Dentaire Rive Droite. Tous droits réservés.
+              <br />
+              <span className="text-xs">
+                Créé avec ❤️ par{' '}
+                <a 
+                  href="mailto:timothee@mercier.app" 
+                  className="text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  Timothée Mercier
+                </a>
+              </span>
             </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <Link href="/legal" className="text-gray-400 hover:text-white text-sm transition-colors">

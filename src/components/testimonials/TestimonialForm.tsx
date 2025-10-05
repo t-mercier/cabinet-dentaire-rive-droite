@@ -140,6 +140,27 @@ export function TestimonialForm({ onSuccess, onCancel }: TestimonialFormProps) {
             />
           </div>
 
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0">
+                <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span className="text-blue-600 text-xs font-bold">i</span>
+                </div>
+              </div>
+              <div className="text-sm text-blue-800">
+                <p className="font-medium mb-1">Protection de vos données</p>
+                <p>
+                  En soumettant ce témoignage, vous acceptez qu'il soit publié sur notre site. 
+                  Vos données sont protégées selon notre{' '}
+                  <a href="/privacy" className="underline hover:no-underline" target="_blank">
+                    politique de confidentialité
+                  </a>. 
+                  Vous pouvez demander la suppression de votre témoignage à tout moment.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="flex justify-end space-x-3">
             <Button
               type="button"
