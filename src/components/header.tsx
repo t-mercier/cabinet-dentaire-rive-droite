@@ -70,6 +70,9 @@ export default function Header() {
               </NavigationMenuList>
             </NavigationMenu>
 
+            <Link href="/equipe" className="text-sm text-gray-700 hover:text-blue-600 transition-colors">
+              Équipe
+            </Link>
             <Link href="/testimonials" className="text-sm text-gray-700 hover:text-blue-600 transition-colors">
               Témoignages
             </Link>
@@ -127,6 +130,13 @@ export default function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
+              <Link
+                href="/equipe"
+                className="block px-3 py-2 text-gray-700 hover:text-blue-600 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Équipe
+              </Link>
               <Link
                 href="/testimonials"
                 className="block px-3 py-2 text-gray-700 hover:text-blue-600 transition-colors"
