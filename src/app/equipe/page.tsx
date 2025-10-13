@@ -69,7 +69,7 @@ function PractitionerCard({ name, role, specialty, assistant }: TeamMemberCardPr
   )
 }
 
-function SimpleCard({ name, role, icon }: { name: string; role: string; icon: 'user' | 'phone' }) {
+function SimpleCard({ name, role, icon, doctolibUrl }: { name: string; role: string; icon: 'user' | 'phone'; doctolibUrl?: string }) {
   const bgColor = icon === 'phone' ? 'from-purple-50 to-purple-100' : 'from-blue-50 to-blue-100'
   const iconColor = icon === 'phone' ? 'text-purple-400' : 'text-blue-400'
   const textColor = icon === 'phone' ? 'text-purple-600' : 'text-blue-600'
@@ -84,7 +84,18 @@ function SimpleCard({ name, role, icon }: { name: string; role: string; icon: 'u
         )}
       </div>
       <h3 className="text-lg font-bold text-gray-900 mb-1">{name}</h3>
-      <p className={`text-sm font-medium ${textColor}`}>{role}</p>
+      <p className={`text-sm font-medium ${textColor} mb-3`}>{role}</p>
+      
+      {doctolibUrl && (
+        <a
+          href={doctolibUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block w-full text-center bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+        >
+          Prendre RDV
+        </a>
+      )}
     </div>
   )
 }
@@ -156,6 +167,7 @@ export default function EquipePage() {
                 name={member.name}
                 role={member.role}
                 icon="user"
+                doctolibUrl="https://www.doctolib.fr/dentiste/merignac/stephane-aumailley"
               />
             ))}
           </div>

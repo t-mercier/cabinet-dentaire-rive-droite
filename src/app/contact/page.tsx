@@ -33,7 +33,7 @@ export default function ContactPage() {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
             {/* Téléphone */}
-            <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
+            <Card className="group border-0 bg-white/80 backdrop-blur-sm">
               <CardContent className="p-8">
                 <div className="flex items-start space-x-6">
                   <div className="flex-shrink-0">
@@ -63,7 +63,7 @@ export default function ContactPage() {
             </Card>
 
             {/* Email */}
-            <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
+            <Card className="group border-0 bg-white/80 backdrop-blur-sm">
               <CardContent className="p-8">
                 <div className="flex items-start space-x-6">
                   <div className="flex-shrink-0">
@@ -91,6 +91,26 @@ export default function ContactPage() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Doctolib - Discret */}
+          <div className="mb-16">
+            <div className="max-w-2xl mx-auto bg-white/60 backdrop-blur-sm rounded-lg border border-gray-200 p-6">
+              <p className="text-sm text-gray-600 text-center mb-3">
+                Pour prendre rendez-vous avec <span className="font-semibold text-gray-900">Dr. Stéphane AUMAILLEY</span> :
+              </p>
+              <div className="text-center">
+                <Button asChild variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+                  <a 
+                    href="https://www.doctolib.fr/dentiste/merignac/stephane-aumailley" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
+                    Réserver sur Doctolib
+                  </a>
+                </Button>
+              </div>
+            </div>
           </div>
 
           {/* Informations pratiques */}
