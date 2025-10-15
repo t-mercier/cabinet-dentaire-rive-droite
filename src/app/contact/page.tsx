@@ -95,20 +95,35 @@ export default function ContactPage() {
 
           {/* Doctolib - Discret */}
           <div className="mb-16">
-            <div className="max-w-2xl mx-auto bg-white/60 backdrop-blur-sm rounded-lg border border-gray-200 p-6">
-              <p className="text-sm text-gray-600 text-center mb-3">
-                Pour prendre rendez-vous avec <span className="font-semibold text-gray-900">Dr. Stéphane AUMAILLEY</span> :
+            <div className="max-w-3xl mx-auto bg-white/60 backdrop-blur-sm rounded-lg border border-gray-200 p-6">
+              <p className="text-sm text-gray-600 text-center mb-4">
+                Prise de rendez-vous en ligne disponible pour :
               </p>
-              <div className="text-center">
-                <Button asChild variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
-                  <a 
-                    href="https://www.doctolib.fr/dentiste/merignac/stephane-aumailley" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                  >
-                    Réserver sur Doctolib
-                  </a>
-                </Button>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <div className="text-center">
+                  <p className="text-xs text-gray-500 mb-2">Dr. Vincent SEGUELA</p>
+                  <Button asChild variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+                    <a 
+                      href="https://www.doctolib.fr/dentiste/floirac/vincent-seguela" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                      Réserver sur Doctolib
+                    </a>
+                  </Button>
+                </div>
+                <div className="text-center">
+                  <p className="text-xs text-gray-500 mb-2">Dr. Stéphane AUMAILLEY</p>
+                  <Button asChild variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+                    <a 
+                      href="https://www.doctolib.fr/dentiste/merignac/stephane-aumailley" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                      Réserver sur Doctolib
+                    </a>
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

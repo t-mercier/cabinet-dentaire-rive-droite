@@ -95,7 +95,7 @@ export default function Footer() {
                   href="mailto:timothee@mercier.app" 
                   className="text-blue-400 hover:text-blue-300 transition-colors"
                 >
-                  Timothée Mercier
+                  mercier.dev
                 </a>
               </span>
             </div>

@@ -78,7 +78,7 @@ const process = [
     description: 'Fabrication et mise en place de la prothèse définitive',
     icon: Crown,
     color: 'bg-yellow-100 text-yellow-600',
-    duration: '2-3h'
+    duration: '30-40 min'
   }
 ]
 

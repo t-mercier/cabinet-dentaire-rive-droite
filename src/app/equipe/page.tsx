@@ -14,20 +14,20 @@ export const metadata: Metadata = {
 // Team data structure
 const teamData = {
   associesMajoritaires: [
-    { name: 'Dr. Michel AZMA', role: 'Praticien Associé Majoritaire', assistant: 'Daphné BARDIN' },
-    { name: 'Dr. Dominique CHEVALIER', role: 'Praticien Associé Majoritaire', assistant: 'Natacha CALENDREAU' },
-    { name: 'Dr. Vincent SEGUELA', role: 'Praticien Associé Majoritaire', assistant: 'Camille PONS' },
-    { name: 'Dr. Alfred MERCIER', role: 'Praticien Associé Majoritaire', assistant: 'Nathalie GOUVAERT' },
+    { name: 'Dr. Michel AZMA', role: 'Praticien Associé Majoritaire', assistant: 'Daphné', doctolibUrl: undefined },
+    { name: 'Dr. Dominique CHEVALIER', role: 'Praticien Associé Majoritaire', assistant: 'Natacha', doctolibUrl: undefined },
+    { name: 'Dr. Vincent SEGUELA', role: 'Praticien Associé Majoritaire', assistant: 'Camille', doctolibUrl: 'https://www.doctolib.fr/dentiste/floirac/vincent-seguela' },
+    { name: 'Dr. Alfred MERCIER', role: 'Praticien Associé Majoritaire', assistant: 'Nathalie', doctolibUrl: undefined },
   ],
   associeIndustrie: [
-    { name: 'Dr. Margaux LIOTARD', role: 'Pédodontiste', specialty: 'Associée en Industrie', assistant: 'Valérie VARAINE' },
+    { name: 'Dr. Margaux LIOTARD', role: 'Pédodontiste', specialty: 'Associée en Industrie', assistant: 'Valérie', doctolibUrl: undefined },
   ],
   collaborateur: [
-    { name: 'Dr. Stéphane AUMAILLEY', role: 'Collaborateur' },
+    { name: 'Dr. Stéphane AUMAILLEY', role: 'Collaborateur', doctolibUrl: 'https://www.doctolib.fr/dentiste/merignac/stephane-aumailley' },
   ],
   secretaires: [
-    { name: 'Elysia HAMEL', role: 'Secrétaire' },
-    { name: 'Marie-Agnès PELLETIER', role: 'Secrétaire' },
+    { name: 'Elysia', role: 'Secrétaire' },
+    { name: 'Marie-Agnès', role: 'Secrétaire' },
   ],
 }
 
@@ -36,9 +36,10 @@ interface TeamMemberCardProps {
   role: string
   specialty?: string
   assistant?: string
+  doctolibUrl?: string
 }
 
-function PractitionerCard({ name, role, specialty, assistant }: TeamMemberCardProps) {
+function PractitionerCard({ name, role, specialty, assistant, doctolibUrl }: TeamMemberCardProps) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 hover:border-blue-300 transition-all duration-200 p-6">
       <div className="flex gap-6">
@@ -51,6 +52,16 @@ function PractitionerCard({ name, role, specialty, assistant }: TeamMemberCardPr
           <p className="text-blue-600 text-sm font-medium">{role}</p>
           {specialty && (
             <p className="text-xs text-gray-500 mt-1">{specialty}</p>
+          )}
+          {doctolibUrl && (
+            <a
+              href={doctolibUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mt-3 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+            >
+              Prendre RDV
+            </a>
           )}
         </div>
         
@@ -135,6 +146,7 @@ export default function EquipePage() {
                 name={member.name}
                 role={member.role}
                 assistant={member.assistant}
+                doctolibUrl={member.doctolibUrl}
               />
             ))}
           </div>
@@ -159,6 +171,7 @@ export default function EquipePage() {
                 role={member.role}
                 specialty={member.specialty}
                 assistant={member.assistant}
+                doctolibUrl={member.doctolibUrl}
               />
             ))}
             {teamData.collaborateur.map((member) => (
@@ -167,7 +180,7 @@ export default function EquipePage() {
                 name={member.name}
                 role={member.role}
                 icon="user"
-                doctolibUrl="https://www.doctolib.fr/dentiste/merignac/stephane-aumailley"
+                doctolibUrl={member.doctolibUrl}
               />
             ))}
           </div>
