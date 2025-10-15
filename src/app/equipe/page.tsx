@@ -102,7 +102,7 @@ function SimpleCard({ name, role, icon, doctolibUrl }: { name: string; role: str
           href={doctolibUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block w-full text-center bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+          className="inline-block mt-3 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
         >
           Prendre RDV
         </a>
