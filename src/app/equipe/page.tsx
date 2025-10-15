@@ -95,7 +95,7 @@ function SimpleCard({ name, role, icon, doctolibUrl }: { name: string; role: str
         )}
       </div>
       <h3 className="text-lg font-bold text-gray-900 mb-1">{name}</h3>
-      <p className={`text-sm font-medium ${textColor} mb-3`}>{role}</p>
+      <p className={`text-sm font-medium ${textColor}`}>{role}</p>
       
       {doctolibUrl && (
         <a
