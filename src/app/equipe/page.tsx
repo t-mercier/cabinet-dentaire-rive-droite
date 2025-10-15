@@ -14,13 +14,13 @@ export const metadata: Metadata = {
 // Team data structure
 const teamData = {
   associesMajoritaires: [
-    { name: 'Dr. Michel AZMA', role: 'Praticien Associé Majoritaire', assistant: 'Daphné', doctolibUrl: undefined },
-    { name: 'Dr. Dominique CHEVALIER', role: 'Praticien Associé Majoritaire', assistant: 'Natacha', doctolibUrl: undefined },
-    { name: 'Dr. Vincent SEGUELA', role: 'Praticien Associé Majoritaire', assistant: 'Camille', doctolibUrl: 'https://www.doctolib.fr/dentiste/floirac/vincent-seguela' },
-    { name: 'Dr. Alfred MERCIER', role: 'Praticien Associé Majoritaire', assistant: 'Nathalie', doctolibUrl: undefined },
+    { name: 'Dr. Michel AZMA', role: 'Praticien Associé', assistant: 'Daphné', doctolibUrl: undefined },
+    { name: 'Dr. Dominique CHEVALIER', role: 'Praticien Associé', assistant: 'Natacha', doctolibUrl: undefined },
+    { name: 'Dr. Vincent SEGUELA', role: 'Praticien Associé', assistant: 'Camille', doctolibUrl: 'https://www.doctolib.fr/dentiste/floirac/vincent-seguela' },
+    { name: 'Dr. Alfred MERCIER', role: 'Praticien Associé', assistant: 'Nathalie', doctolibUrl: undefined },
   ],
   associeIndustrie: [
-    { name: 'Dr. Margaux LIOTARD', role: 'Pédodontiste', specialty: 'Associée en Industrie', assistant: 'Valérie', doctolibUrl: undefined },
+    { name: 'Dr. Margaux LIOTARD', role: 'Pédodontiste', assistant: 'Valérie', doctolibUrl: undefined },
   ],
   collaborateur: [
     { name: 'Dr. Stéphane AUMAILLEY', role: 'Collaborateur', doctolibUrl: 'https://www.doctolib.fr/dentiste/merignac/stephane-aumailley' },
@@ -169,7 +169,6 @@ export default function EquipePage() {
                 key={member.name}
                 name={member.name}
                 role={member.role}
-                specialty={member.specialty}
                 assistant={member.assistant}
                 doctolibUrl={member.doctolibUrl}
               />
