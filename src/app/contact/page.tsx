@@ -101,26 +101,24 @@ export default function ContactPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <div className="text-center">
-                  <p className="text-xs text-gray-500 mb-2">Dr. Vincent SEGUELA</p>
-                  <Button asChild variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+                  <Button asChild className="bg-blue-100 hover:bg-blue-200 text-blue-600 transition-colors">
                     <a 
                       href="https://www.doctolib.fr/dentiste/floirac/vincent-seguela" 
                       target="_blank" 
                       rel="noopener noreferrer"
                     >
-                      Réserver sur Doctolib
+                      Dr. Vincent SEGUELA
                     </a>
                   </Button>
                 </div>
                 <div className="text-center">
-                  <p className="text-xs text-gray-500 mb-2">Dr. Stéphane AUMAILLEY</p>
-                  <Button asChild variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+                  <Button asChild className="bg-blue-100 hover:bg-blue-200 text-blue-600 transition-colors">
                     <a 
                       href="https://www.doctolib.fr/dentiste/merignac/stephane-aumailley" 
                       target="_blank" 
                       rel="noopener noreferrer"
                     >
-                      Réserver sur Doctolib
+                      Dr. Stéphane AUMAILLEY
                     </a>
                   </Button>
                 </div>
