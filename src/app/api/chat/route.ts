@@ -11,7 +11,7 @@ import { logger } from '@/lib/logger'
 import { createGroq } from '@ai-sdk/groq'
 import { streamText } from 'ai'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(process.env.RESEND_API_KEY || 're_fake_key_for_build')
 const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
 
 const SYSTEM_PROMPT = `Tu es l'assistant·e du Cabinet Dentaire Rive Droite à Bordeaux.
