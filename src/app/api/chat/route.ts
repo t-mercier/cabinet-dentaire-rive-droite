@@ -9,55 +9,45 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { logger } from '@/lib/logger'
 import { createGroq } from '@ai-sdk/groq'
-import { streamText, convertToCoreMessages } from 'ai'
+import { streamText } from 'ai'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
 
-const SYSTEM_PROMPT = `Tu es l'standardiste du Cabinet Dentaire Rive Droite, à Bordeaux. Tu travailles à l'accueil et tu réponds au téléphone.
+const SYSTEM_PROMPT = `Tu es l'assistant·e du Cabinet Dentaire Rive Droite à Bordeaux.
+Ton ton est naturel et professionnel, comme un vrai standardiste.
+- Ne dis jamais que tu es une IA ou un bot (réponds simplement : "Je suis au standard du cabinet").
+- Ne redis pas les mêmes phrases toutes faites à chaque réponse.
 
 COMMENT RÉPONDRE
 - Si on te dit "salut, comment tu vas ?" → réponds "Je vais bien merci! :) Et vous, comment allez-vous ? Qu'est-ce que je peux faire pour vous aujourd'hui ?"
 - Si on demande si tu es une IA/bot → dis simplement "Non, je suis au standard du cabinet." (sans phrases compliquées)
-- Personnalité : naturelle, sympa, professionnelle. Comme une vraie standardiste à l'accueil.
 
-INTERDICTIONS FORMELLES
-❌ Ne JAMAIS dire "Je suis simplement l'assistant qui..."
-❌ Ne JAMAIS dire "Je suis là pour vous aider..." (c'est trop robotique)
-❌ Ne JAMAIS dire "Je suis l'assistant virtuel"
-❌ Ne JAMAIS mentionner "IA", "bot", "intelligence artificielle"
-✅ Si on te pose la question, dis juste : "Je suis au standard du cabinet"
-
-TON ET PHRASES
-Utilise des expressions naturelles comme :
-- "Bien sûr, je vous explique..."
-- "Avec plaisir..."
-- "Je vous écoute..."
-- "Pas de souci..."
-- Mais varie-les ! Ne répète pas.
+QUAND UN PATIENT VEUT PRENDRE RENDEZ-VOUS (mots-clés: "rdv", "rendez-vous", "prendre rendez-vous") :
+1. Demande son nom complet
+2. Demande son adresse e-mail
+3. Demande son numéro de téléphone
+4. Demande le soin souhaité (implantologie, parodontologie, soins conservateurs, prothèses, blanchiment, pédodontie, etc.)
+5. Demande ses disponibilités (jours/horaires)
+6. Récapitule les informations et précise qu'une secrétaire le contactera (par téléphone ou e-mail) pour fixer l'heure exacte
 
 INFOS CABINET
 - Tél : 05 56 86 29 00
 - Email : cabinetdentaireaces@gmail.com
-- Ouvert : Lundi-Vendredi 9h-12h30 / 14h-19h30
-- Fermé : Samedi-Dimanche
-- RDV : téléphone ou Doctolib (Drs Seguela et Aumailley)
+- Le cabinet est ouvert du lundi au vendredi (9h-12h30 / 14h-19h30) et fermé le week-end
+- NE PROPOSE JAMAIS de rendez-vous le samedi ou le dimanche
 
-RÈGLES
-- IMPORTANT : Vérifie toujours le jour de la semaine avant de dire qu'on est ouvert
-- Si c'est samedi ou dimanche → le cabinet est FERMÉ
-- Le cabinet est ouvert UNIQUEMENT du lundi au vendredi
-- Tu ne vérifies JAMAIS les disponibilités ou le planning (tu ne les as pas en accès)
-- Si on demande un rendez-vous → dis simplement "Appelez-nous au 05 56 86 29 00 pour réserver"
-- Si on demande si vous êtes ouvert → dis juste les horaires sans vérifier
-- Tu ne donnes PAS de conseils médicaux (oriente vers le cabinet en urgence)
+RÈGLES GÉNÉRALES
+- Pour les services, praticiens ou équipe → cherche dans le CONTEXTE_SITE fourni
+- Tu peux expliquer de manière générale ce qu'est un service dentaire en utilisant le contenu du site, mais rappelle qu'un examen en cabinet est nécessaire pour un avis personnalisé
+- Pour toute autre question médicale, réponds de façon générale en citant le site ou des sources fiables, et oriente vers une consultation
 - Reste humain et évite les phrases toutes faites
 `
 
-// en haut du fichier
 const SITE_URLS = [
   'https://www.cabinetdentairerivedroite.com/',
   'https://www.cabinetdentairerivedroite.com/services',
+  'https://www.cabinetdentairerivedroite.com/equipe',
   'https://www.cabinetdentairerivedroite.com/contact'
 ];
 
@@ -74,7 +64,7 @@ async function fetchSiteContext() {
           .replace(/<[^>]+>/g, ' ')
           .replace(/\s+/g, ' ')
           .trim()
-          .slice(0, 3500); // on borne pour rester léger
+          .slice(0, 4000); // extraction plus grande pour avoir plus de contexte
       })
     );
     return texts.join('\n\n---\n\n');
@@ -114,9 +104,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Fetch site context asynchronously (don't block)
-    const siteContextPromise = fetchSiteContext();
-    
     // Add natural tone variation
     const naturalTones = [
       "Sois naturel et varie tes expressions, comme un vrai assistant humain.",
@@ -125,14 +112,24 @@ export async function POST(request: NextRequest) {
       "Exprime-toi comme si tu discutais avec un patient en face de toi."
     ];
     const tonePrompt = naturalTones[Math.floor(Math.random() * naturalTones.length)];
-
+    const timezone = 'Europe/Amsterdam';
+    const todayDate = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: timezone });
+    const tomorrowDate = new Date();
+    tomorrowDate.setDate(new Date().getDate() + 1);
+    const tomorrow = tomorrowDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: timezone });
+    
+    // Fetch site context
+    const siteContext = await fetchSiteContext()
+    
     const systemPrompt = `${SYSTEM_PROMPT}
-
-${tonePrompt}
-
-CONTEXTE_SITE (extrait, priorité absolue si pertinent) :
-Le site est accessible à https://www.cabinetdentairerivedroite.com
-Consulte-le pour les informations précises.`;
+    
+    Aujourd'hui, nous sommes ${todayDate}. Demain, ${tomorrow}.
+    Rappel : le cabinet est fermé le samedi et le dimanche et ouvert du lundi au vendredi.
+    
+    ${tonePrompt}
+    
+    CONTEXTE_SITE (extrait, priorité absolue si pertinent) :
+${siteContext || '(indisponible)'}`;
 
     // Count user messages BEFORE conversion (for email transcript)
     const userMessagesCount = messages.filter((m: Message) => m.role === 'user').length
@@ -158,20 +155,32 @@ Consulte-le pour les informations précises.`;
     // Get the full response
     const response = await result.text
     
-    if (userMessagesCount >= 3) {
+    // Check if this is a rendez-vous confirmation
+    const isRDVConfirmation = response.toLowerCase().includes('secrétaire') || 
+                             response.toLowerCase().includes('recontacter') ||
+                             response.toLowerCase().includes('rappellera')
+    
+    // Send email if: (1) 3+ messages OR (2) RDV confirmation with at least 2 user messages
+    const shouldSendEmail = (userMessagesCount >= 3) || (isRDVConfirmation && userMessagesCount >= 2)
+    
+    if (shouldSendEmail) {
       try {
-        const transcript = messages
+        const transcript = [...messages, { role: 'assistant' as const, content: response, timestamp: new Date() }]
           .map((m: Message) => `${m.role === 'user' ? 'Patient' : 'Assistant'}: ${m.content}`)
           .join('\n\n')
+
+        const subject = isRDVConfirmation 
+          ? `🎯 NOUVEAU RENDEZ-VOUS DEMANDÉ via Chatbot`
+          : `Chatbot AI - Nouvelle conversation (${userMessagesCount} messages)`
 
         await resend.emails.send({
           from: 'Cabinet Dentaire Rive Droite <noreply@cabinetdentairerivedroite.com>',
           to: ['cabinetdentaireaces@gmail.com'],
-          subject: `Chatbot AI - Nouvelle conversation (${userMessagesCount} messages)`,
-          text: `Nouvelle conversation via le chatbot AI du site web.\n\nNombre de messages: ${userMessagesCount}\n\n---\n\n${transcript}`,
+          subject,
+          text: `${isRDVConfirmation ? '🎯 NOUVEAU RENDEZ-VOUS DEMANDÉ\n\n' : ''}Conversation via le chatbot AI du site web.\n\nNombre de messages: ${userMessagesCount + 1}\n\n---\n\n${transcript}`,
         })
 
-        logger.info('Chat transcript sent via email')
+        logger.info('Chat transcript sent via email', { isRDVConfirmation })
       } catch (emailError) {
         logger.error('Error sending chat transcript:', emailError)
         // Don't fail the request if email sending fails
