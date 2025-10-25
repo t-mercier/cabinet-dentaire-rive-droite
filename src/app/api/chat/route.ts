@@ -155,15 +155,13 @@ ${siteContext || '(indisponible)'}`;
     // Get the full response
     const response = await result.text
     
-    // TODO: Temporarily disabled email sending until chatbot is fully tested and working properly
     // Check if this is a rendez-vous confirmation
     const isRDVConfirmation = response.toLowerCase().includes('secrétaire') || 
                              response.toLowerCase().includes('recontacter') ||
                              response.toLowerCase().includes('rappellera')
     
     // Send email if: (1) 3+ messages OR (2) RDV confirmation with at least 2 user messages
-    const shouldSendEmail = false // Disabled for now - set to true when ready
-    // const shouldSendEmail = (userMessagesCount >= 3) || (isRDVConfirmation && userMessagesCount >= 2)
+    const shouldSendEmail = (userMessagesCount >= 3) || (isRDVConfirmation && userMessagesCount >= 2)
     
     if (shouldSendEmail) {
       try {
