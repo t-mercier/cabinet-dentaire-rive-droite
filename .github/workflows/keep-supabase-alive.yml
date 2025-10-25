@@ -1,0 +1,26 @@
+name: Keep Supabase Awake
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"  # toutes les 10 minutes
+  workflow_dispatch: {}      # déclenchement manuel si besoin
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Ping Supabase testimonials table
+        run: |
+          set -euo pipefail
+          curl -sS -o /dev/null -w "%{http_code}\n" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/testimonials?select=id&limit=1" | tee /tmp/code
+          code=$(cat /tmp/code)
+          # On attend un 200 (OK) ou 206 (Partial Content) selon RLS/filtres
+          if [ "$code" != "200" ] && [ "$code" != "206" ]; then
+            echo "❌ Unexpected HTTP code: $code"
+            exit 1
+          fi
+          echo "✅ Supabase ping successful (code: $code)"

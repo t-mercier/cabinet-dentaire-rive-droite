@@ -8,7 +8,7 @@
 export const staticTestimonials = [
   {
     id: 'static-1',
-    name: 'François',
+    name: 'Françoise',
     rating: 5,
     content: 'Le Dr Mercier a été exceptionnel lors de ma consultation d\'implantologie. Il a pris le temps de m\'expliquer chaque détail de la procédure, les risques et les bénéfices. Sa patience et son écoute m\'ont complètement rassuré. Un praticien à l\'écoute et très humain !',
     service: 'Implantologie',
