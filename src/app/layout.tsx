@@ -4,10 +4,12 @@ import "./globals.css";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import CookieBanner from "@/components/CookieBanner";
+import { ChatWidget } from "@/components/ChatWidget";
 /**
  * What changed & why
  * - Removed commented Clerk import to reduce noise.
  * - Added CookieBanner for GDPR compliance.
+ * - Added ChatWidget for interactive assistant.
  */
 import { Toaster } from "@/components/ui/sonner";
 
@@ -54,6 +56,7 @@ export default function RootLayout({
         </main>
         <Footer />
         <CookieBanner />
+        <ChatWidget />
         <Toaster />
       </body>
     </html>
