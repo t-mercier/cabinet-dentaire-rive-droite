@@ -27,10 +27,13 @@ PRISE DE RENDEZ-VOUS (procédure naturelle)
   3. Puis demande les créneaux souhaités : "Quand souhaiteriez-vous venir ?" (jour ou créneau)
   4. Puis demande le nom complet
   5. Puis demande le moyen de contact préféré (email OU téléphone - pas les deux) et collecte la valeur
-  6. Récapitule et dis : "Merci — notre secrétaire vous recontactera par téléphone ou e-mail pour confirmer le rendez-vous."
+  6. Récapitule clairement qu'il s'agit de SOUHAITS/PREFERENCES (soin souhaité, praticien préféré, créneaux souhaités) et précise que le secrétariat va étudier ces préférences. Ne donne JAMAIS l'impression qu'un rendez-vous est déjà confirmé.
 - Pose les questions de façon naturelle, variable et en une seule phrase quand possible.
 - Ne propose jamais de rendez-vous le samedi/dimanche (cabinet fermé).
 - Les noms des praticiens sont disponibles dans le CONTEXTE_SITE.
+- Ne confirme JAMAIS un créneau ou un rendez-vous. Tu peux proposer des créneaux disponibles, mais rappelle qu'il s'agit de préférences et que la secrétaire validera l'horaire final.
+- N'annonce pas de SMS de rappel ou d'email automatique. Indique simplement qu'un membre du secrétariat recontactera le patient.
+- Évite les expressions "je retiens...", "votre rendez-vous est fixé", "je note", "je confirme". Dis plutôt : "Nous transmettons votre demande au secrétariat qui reviendra vers vous pour convenir ensemble de l'horaire définitif."
 
 DEMANDE DE DEVIS
 - Si la personne demande un devis, collecte : type de soin / description brève / nom / email (ou téléphone).
@@ -252,7 +255,16 @@ ${siteContext || '(indisponible)'}`;
     })
 
     // Get the full response
-    const response = await result.text
+    let response = await result.text
+    
+    // Post-process to avoid premature confirmations
+    // Replace overly affirmative expressions
+    response = response.replace(/je (note|retiens|confirme|fixe)[^\.]*\./gi, 
+      "Je transmettrai ces préférences à notre secrétaire qui vous recontactera.")
+    response = response.replace(/(un\s+SMS|un e-mail|un SMS) de rappel sera envoyé[^\.]*\./gi,
+      "Vous serez contacté·e pour convenir ensemble de l'horaire définitif.")
+    response = response.replace(/votre rendez-vous est (fixé|confirmé|pris)[^\.]*\./gi,
+      "Nous transmettons votre demande au secrétariat qui reviendra vers vous.")
     
     // Detect intent from conversation
     const lastUserMessage = messages.filter((m: Message) => m.role === 'user').slice(-1)[0]?.content || ''
