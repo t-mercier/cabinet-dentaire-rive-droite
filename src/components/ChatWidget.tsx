@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { MessageCircle, X, Send, Sparkles, User, Stethoscope } from 'lucide-react'
 import { toast } from 'sonner'
+import ReactMarkdown from 'react-markdown'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -142,7 +143,7 @@ export function ChatWidget() {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+          <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50">
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -161,13 +162,15 @@ export function ChatWidget() {
                   {message.role === 'user' && (
                     <User className="w-4 h-4 mt-0.5 flex-shrink-0" />
                   )}
-                  <div className="text-sm whitespace-pre-wrap leading-relaxed space-y-2">
-                    {message.content.split('\n').map((line, idx) => (
-                      <p key={idx} className={idx === 0 ? '' : 'mt-2'}>
-                        {line || '\u00A0'}
-                      </p>
-                    ))}
-                  </div>
+                  {message.role === 'assistant' ? (
+                    <div className="text-sm leading-relaxed">
+                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                      {message.content}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

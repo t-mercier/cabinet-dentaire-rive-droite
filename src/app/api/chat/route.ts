@@ -22,13 +22,15 @@ PRIORITÉS
 
 PRISE DE RENDEZ-VOUS (procédure naturelle)
 - Si l'utilisateur exprime l'intention "prendre rendez-vous", adopte ce flux naturel :
-  1. Demande d'abord : "Quand souhaiteriez-vous venir ?" ou "Quel jour / créneau vous conviendrait ?"
-  2. Demande ensuite la raison du rendez-vous (ex : "contrôle", "implant", "blanchiment", etc.)
-  3. Puis demande le nom complet.
-  4. Puis demande le moyen de contact préféré (email ou téléphone) et collecte la valeur.
-  5. Récapitule et dis : "Merci — notre secrétaire vous recontactera par téléphone ou e-mail pour confirmer."
+  1. Demande d'abord quel type de soin ou consultation (contrôle, détartrage, implant, blanchiment, prothèses, etc.)
+  2. Demande ensuite si la personne a un praticien préféré au cabinet (Dr. Azma, Dr. Chevalier, Dr. Seguela, Dr. Mercier, Dr. Liotard, Dr. Aumailley...)
+  3. Puis demande les créneaux souhaités : "Quand souhaiteriez-vous venir ?" (jour ou créneau)
+  4. Puis demande le nom complet
+  5. Puis demande le moyen de contact préféré (email OU téléphone - pas les deux) et collecte la valeur
+  6. Récapitule et dis : "Merci — notre secrétaire vous recontactera par téléphone ou e-mail pour confirmer le rendez-vous."
 - Pose les questions de façon naturelle, variable et en une seule phrase quand possible.
 - Ne propose jamais de rendez-vous le samedi/dimanche (cabinet fermé).
+- Les noms des praticiens sont disponibles dans le CONTEXTE_SITE.
 
 DEMANDE DE DEVIS
 - Si la personne demande un devis, collecte : type de soin / description brève / nom / email (ou téléphone).
@@ -88,6 +90,7 @@ interface PatientInfo {
   telephone?: string
   service?: string
   disponibilites?: string
+  praticien?: string
 }
 
 // Detect intent from user message
@@ -127,10 +130,10 @@ function extractPatientInfo(messages: Message[]): PatientInfo {
     if (phones && !info.telephone) info.telephone = phones[0].replace(/[\s.-]/g, '')
   })
   
-  // Extract name (look for patterns like "Je m'appelle X", "Mon nom est X", etc.)
+  // Extract name (look for patterns like "Je m'appelle X", "Mon nom est X", or simple "First Last")
   const namePatterns = [
-    /(?:je m'appelle|mon nom est|je suis)\s+([A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+\s+[A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+)/i,
-    /(?:c'est|mes coordonnées sont)\s+([A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+\s+[A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+)/i
+    /(?:je m'appelle|mon nom est|je suis|c'est)\s+([A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+\s+[A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+)/i,
+    /^([A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+\s+[A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+)$/i // Simple "First Last" pattern
   ]
   userMessages.forEach(msg => {
     if (!info.nom) {
@@ -145,12 +148,25 @@ function extractPatientInfo(messages: Message[]): PatientInfo {
   })
   
   // Extract service
-  const services = ['implant', 'blanchiment', 'parodont', 'prothèse', 'conservateur', 'pédodontie', 'orthodontie', 'extraction', 'détartrage']
+  const services = ['implant', 'blanchiment', 'parodont', 'prothèse', 'conservateur', 'pédodontie', 'orthodontie', 'extraction', 'détartrage', 'contrôle', 'soin']
   userMessages.forEach(msg => {
     if (!info.service) {
       for (const service of services) {
         if (msg.includes(service)) {
           info.service = service
+          break
+        }
+      }
+    }
+  })
+  
+  // Extract praticien
+  const praticiens = ['azma', 'chevalier', 'seguela', 'mercier', 'liotard', 'aumailley']
+  userMessages.forEach(msg => {
+    if (!info.praticien) {
+      for (const praticien of praticiens) {
+        if (msg.includes(praticien)) {
+          info.praticien = `Dr. ${praticien.charAt(0).toUpperCase() + praticien.slice(1)}`
           break
         }
       }
@@ -267,6 +283,7 @@ ${siteContext || '(indisponible)'}`;
         if (patientInfo.email) emailBody += `- Email : ${patientInfo.email}\n`
         if (patientInfo.telephone) emailBody += `- Téléphone : ${patientInfo.telephone}\n`
         if (patientInfo.service) emailBody += `- Service : ${patientInfo.service}\n`
+        if (patientInfo.praticien) emailBody += `- Praticien préféré : ${patientInfo.praticien}\n`
         if (patientInfo.disponibilites) emailBody += `- Disponibilités : ${patientInfo.disponibilites}\n`
         emailBody += `\n---\n\nTranscription complète :\n\n`
         
