@@ -25,8 +25,6 @@ export function ChatWidget() {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [shouldSendEmail, setShouldSendEmail] = useState(false)
-  const [showSendEmailOptions, setShowSendEmailOptions] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
@@ -94,13 +92,21 @@ export function ChatWidget() {
 
       setMessages(prev => [...prev, assistantMessage])
       
-      // Check if this conversation warrants an email
-      if (data.shouldSendEmail) {
-        setShouldSendEmail(true)
-        // After a short delay, ask if user needs anything else
-        setTimeout(() => {
-          setShowSendEmailOptions(true)
-        }, 2000)
+      // If ready to send email (user said "no" after closing question)
+      if (data.readyToSend) {
+        try {
+          const emailResponse = await fetch('/api/chat/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages: [...messages, userMessage, assistantMessage] })
+          })
+          
+          if (emailResponse.ok) {
+            toast.success('Merci, c\'est transmis au secrétariat !')
+          }
+        } catch (error) {
+          console.error('Email send error:', error)
+        }
       }
     } catch (error) {
       console.error('Chat error:', error)
@@ -259,49 +265,6 @@ export function ChatWidget() {
               >
                 📅 Prendre rendez-vous
               </button>
-            </div>
-          )}
-
-          {/* Email send options */}
-          {showSendEmailOptions && shouldSendEmail && (
-            <div className="px-4 pb-3 border-b border-gray-200">
-              <p className="text-sm text-gray-600 mb-2">Avez-vous besoin d'autre chose ?</p>
-              <div className="flex gap-2">
-                <button
-                  onClick={async () => {
-                    setShowSendEmailOptions(false)
-                    // User said no, send email now
-                    try {
-                      const response = await fetch('/api/chat/send-email', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ messages })
-                      })
-                      
-                      const data = await response.json()
-                      
-                      if (response.ok) {
-                        toast.success('Votre demande a été envoyée au secrétariat !')
-                      } else {
-                        console.error('Email send error:', data)
-                        toast.error(data.error || 'Erreur lors de l\'envoi')
-                      }
-                    } catch (error) {
-                      console.error('Email send error:', error)
-                      toast.error('Erreur lors de l\'envoi')
-                    }
-                  }}
-                  className="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg font-medium transition-colors"
-                >
-                  Non, c'est tout
-                </button>
-                <button
-                  onClick={() => setShowSendEmailOptions(false)}
-                  className="flex-1 px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm rounded-lg font-medium transition-colors"
-                >
-                  Oui
-                </button>
-              </div>
             </div>
           )}
 

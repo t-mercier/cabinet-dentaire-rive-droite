@@ -27,13 +27,17 @@ PRISE DE RENDEZ-VOUS (procédure naturelle)
   3. Puis demande les créneaux souhaités : "Quand souhaiteriez-vous venir ?" (jour ou créneau)
   4. Puis demande le nom complet
   5. Puis demande le moyen de contact préféré (email OU téléphone - pas les deux) et collecte la valeur
-  6. Récapitule clairement qu'il s'agit de SOUHAITS/PREFERENCES (soin souhaité, praticien préféré, créneaux souhaités) et précise que le secrétariat va étudier ces préférences. Ne donne JAMAIS l'impression qu'un rendez-vous est déjà confirmé.
+  6. Quand tu as réuni service + (praticien s'il y a) + créneau souhaité + nom + contact,
+    fais un récapitulatif clair en précisant que ce sont des préférences à transmettre au secrétariat
+    (aucune confirmation). Termine TOUJOURS par une question de clôture :
+    « Super, j'ai tout ce qu'il faut. Je transmets au secrétariat. Avez-vous besoin d'autre chose ? »
+    Ne dis jamais « je note/je retiens/je confirme » ni « rendez-vous fixé ».
 - Pose les questions de façon naturelle, variable et en une seule phrase quand possible.
 - Ne propose jamais de rendez-vous le samedi/dimanche (cabinet fermé).
 - Les noms des praticiens sont disponibles dans le CONTEXTE_SITE.
 - Ne confirme JAMAIS un créneau ou un rendez-vous. Tu peux proposer des créneaux disponibles, mais rappelle qu'il s'agit de préférences et que la secrétaire validera l'horaire final.
 - N'annonce pas de SMS de rappel ou d'email automatique. Indique simplement qu'un membre du secrétariat recontactera le patient.
-- Évite les expressions "je retiens...", "votre rendez-vous est fixé", "je note", "je confirme". Dis plutôt : "Nous transmettons votre demande au secrétariat qui reviendra vers vous pour convenir ensemble de l'horaire définitif."
+- N'écris pas de date ou d'horaire comme "retenu(e)"; reste au conditionnel (« préférence pour… »).
 
 DEMANDE DE DEVIS
 - Si la personne demande un devis, collecte : type de soin / description brève / nom / email (ou téléphone).
@@ -104,15 +108,40 @@ function detectIntent(text: string): 'appointment' | 'quote' | 'other' {
   return 'other'
 }
 
-// Check if required fields are present
+// Check if all required fields for appointment are present
+function hasAllAppointmentFields(info: PatientInfo): boolean {
+  return Boolean(
+    info?.service &&
+    info?.disponibilites &&
+    info?.nom &&
+    (info?.email || info?.telephone)
+  )
+}
+
+// Check if required fields are present based on intent
 function hasRequiredFields(intent: string, info: PatientInfo): boolean {
   if (intent === 'appointment') {
-    return !!(info.nom || info.email || info.telephone)
+    return hasAllAppointmentFields(info)
   }
   if (intent === 'quote') {
-    return !!(info.nom || info.email || info.telephone)
+    return Boolean(info.nom && (info.email || info.telephone) && info.service)
   }
   return false
+}
+
+// Detect if user said "no" to closing question
+function isNegativeCloseAnswer(text: string): boolean {
+  const t = text.toLowerCase().trim()
+  return [
+    'non', 'non merci', 'c\'est bon', "c'est bon", 'ça ira', 'merci c\'est tout',
+    "merci c'est tout", 'parfait merci', 'tout bon', 'ça me va', 'aucune autre'
+  ].some(p => t.includes(p))
+}
+
+// Detect if assistant asked closing question
+function assistantAskedClosing(messages: Array<{ role: string; content: string }>): boolean {
+  const lastAssistant = [...messages].reverse().find(m => m.role === 'assistant')?.content?.toLowerCase() || ''
+  return lastAssistant.includes("avez-vous besoin d'autre chose")
 }
 
 function extractPatientInfo(messages: Message[]): PatientInfo {
@@ -176,20 +205,22 @@ function extractPatientInfo(messages: Message[]): PatientInfo {
     }
   })
   
-  // Extract disponibilities (look for days and times)
-  const days = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']
-  const timePattern = /\d{1,2}h\d{0,2}|\d{1,2}:\d{2}/
-  userMessages.forEach(msg => {
-    if (!info.disponibilites) {
-      const foundDays = days.filter(d => msg.includes(d))
-      const foundTime = msg.match(timePattern)
-      if (foundDays.length > 0 || foundTime) {
-        info.disponibilites = msg.substring(0, 100) // Take first 100 chars as context
-      }
-    }
-  })
-  
   return info
+}
+
+// Extract disponibilities (concatenate all mentions of days/times)
+function extractDisponibilites(messages: Message[]): string {
+  const days = /(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)/i
+  const time = /\b(\d{1,2}h\d{0,2}|\d{1,2}:\d{2})\b/
+  const spans: string[] = []
+  for (const m of messages) {
+    if (m.role !== 'user') continue
+    const line = m.content
+    if (days.test(line) || time.test(line)) {
+      spans.push(line.trim())
+    }
+  }
+  return spans.slice(-3).join(' | ') // Keep last 3 mentions
 }
 
 export async function POST(request: NextRequest) {
@@ -267,20 +298,28 @@ ${siteContext || '(indisponible)'}`;
       "Nous transmettons votre demande au secrétariat qui reviendra vers vous.")
     
     // Detect intent from conversation
+    const conversationText = [...messages.map((m: Message) => m.content), response].join(' ')
+    const intent = detectIntent(conversationText)
+    
+    // Extract patient info (with disponibilities using new function)
+    const fullMessages = [...messages, { role: 'assistant' as const, content: response, timestamp: new Date() }]
+    const patientInfo = extractPatientInfo(fullMessages)
+    patientInfo.disponibilites = extractDisponibilites(fullMessages) || patientInfo.disponibilites
+    
+    // Check if ready to send email
     const lastUserMessage = messages.filter((m: Message) => m.role === 'user').slice(-1)[0]?.content || ''
-    const intent = detectIntent([...messages.map((m: Message) => m.content), lastUserMessage].join(' '))
     
-    // Extract patient info
-    const patientInfo = extractPatientInfo([...messages, { role: 'assistant' as const, content: response, timestamp: new Date() }])
-    
-    // Store patient info and intent for potential email sending (will be sent only on explicit request)
-    // Don't send email automatically anymore
+    const readyToSend = 
+      (intent === 'appointment' || intent === 'quote') &&
+      hasRequiredFields(intent, patientInfo) &&
+      assistantAskedClosing(fullMessages) &&
+      isNegativeCloseAnswer(lastUserMessage)
     
     return NextResponse.json({ 
       response,
       intent,
       patientInfo,
-      shouldSendEmail: (intent === 'appointment' || intent === 'quote') && hasRequiredFields(intent, patientInfo)
+      readyToSend
     })
   } catch (error) {
     logger.error('Error processing chat:', error)
