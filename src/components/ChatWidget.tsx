@@ -99,6 +99,11 @@ export function ChatWidget() {
         patientInfo: data.patientInfo
       })
       
+      // Debug toast
+      if (data.intent === 'appointment' || data.intent === 'quote') {
+        toast.info(`Debug: intent=${data.intent}, ready=${data.readyToSend}`)
+      }
+      
       if (data.readyToSend) {
         try {
           console.log('Sending email with messages:', [...messages, userMessage, assistantMessage])

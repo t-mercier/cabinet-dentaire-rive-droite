@@ -21,7 +21,7 @@ Lorsqu'un patient veut prendre rendez-vous :
   - Demande quel type de soin ou consultation il souhaite (contrôle, détartrage, implant, etc.).
   - Demande ensuite s'il a une préférence pour un praticien (les noms sont dans le CONTEXTE_SITE, ne les liste pas dans ta question).
   - Demande quels jours ou quels créneaux conviendraient (jour ou plage horaire).
-  - Demande enfin son nom complet et son moyen de contact préféré (téléphone ou e-mail).
+  - Demande enfin son nom complet et son moyen de contact préféré (téléphone ou e-mail). N'assume jamais le genre de l'utilisateur, reste neutre.
   - Lorsque tu as toutes ces informations, récapitule les souhaits (soin, praticien, créneau, nom, contact) et précise que tu vas transmettre au secrétariat. Termine par demander si l'utilisateur a besoin d'autre chose.
   - Ne confirme jamais un rendez-vous ni un créneau : rappelle que ce sont des préférences et que le secrétariat validera l'horaire final.
 
@@ -296,7 +296,9 @@ ${siteContext || '(indisponible)'}`;
     const isNegative = isNegativeCloseAnswer(lastUserMessage)
     const hasIntent = (intent === 'appointment' || intent === 'quote')
     
-    const readyToSend = hasIntent && hasFields && isNegative
+    // Ready to send: either user said "no" OR we have all required fields for appointment
+    // (fallback in case negative answer detection fails)
+    const readyToSend = hasIntent && hasFields && (isNegative || intent === 'appointment')
     
     logger.info('Email trigger check:', {
       hasIntent,
