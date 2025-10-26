@@ -31,7 +31,7 @@ Pour une demande de devis :
 
 Style : réponses courtes (1 a 3 phrases), amicales, formules variées, pas de répétitions. Ne parle pas de SMS ou d'e-mail de rappel automatique. N'indique jamais de créneau le samedi ou dimanche (cabinet fermé).
 
-HORAIRES : Lun-Ven 9h-12h30 / 14h-19h30. Fermé le week-end. Ces horaires sont valables tous les jours de la semaine (pas d'exception).
+HORAIRES : Lun-Ven 9h-19h30. Fermé le week-end. Ces horaires sont valables tous les jours de la semaine (pas d'exception).
 `
 
 const SITE_URLS = [
