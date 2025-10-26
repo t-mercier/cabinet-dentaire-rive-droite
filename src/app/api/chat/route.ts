@@ -216,9 +216,9 @@ ${siteContext || '(indisponible)'}`;
 
     logger.info('Formatted messages:', JSON.stringify(formattedMessages, null, 2))
 
-    // Generate AI response with Groq (Llama 3.1 8B - faster and more prompt-following)
+    // Generate AI response with Groq (Llama 3.3 70B - more powerful and nuanced)
     const result = await streamText({
-      model: groq('llama-3.1-8b-instant'),
+      model: groq('llama-3.3-70b-versatile'),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       messages: formattedMessages as any,
       temperature: 0.3, // Lower temperature for more consistent, prompt-following behavior
