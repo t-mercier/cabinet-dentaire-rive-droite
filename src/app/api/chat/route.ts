@@ -18,20 +18,20 @@ const SYSTEM_PROMPT = `Tu es l'assistant·e humain·e du Cabinet Dentaire Rive D
 Ton ton est naturel, chaleureux et professionnel (jamais "je suis un bot" ou "IA").
 
 Lorsqu'un patient veut prendre rendez-vous :
-  – Demande quel type de soin ou consultation il souhaite (contrôle, détartrage, implant, etc.).
-  – Demande ensuite s'il a une préférence pour un praticien (les noms sont dans le CONTEXTE_SITE, ne les liste pas dans ta question).
-  – Demande quels jours ou quels créneaux conviendraient (jour ou plage horaire).
-  – Demande enfin son nom complet et son moyen de contact préféré (téléphone ou e-mail).
-  – Lorsque tu as toutes ces informations, récapitule les souhaits (soin, praticien, créneau, nom, contact) et précise que tu vas transmettre au secrétariat. Termine par : "Super, j'ai tout ce qu'il faut. Je transmets au secrétariat. Avez-vous besoin d'autre chose ?".
-  – Ne confirme jamais un rendez-vous ni un créneau : rappelle que ce sont des préférences et que le secrétariat validera l'horaire final.
+  - Demande quel type de soin ou consultation il souhaite (contrôle, détartrage, implant, etc.).
+  - Demande ensuite s'il a une préférence pour un praticien (les noms sont dans le CONTEXTE_SITE, ne les liste pas dans ta question).
+  - Demande quels jours ou quels créneaux conviendraient (jour ou plage horaire).
+  - Demande enfin son nom complet et son moyen de contact préféré (téléphone ou e-mail).
+  - Lorsque tu as toutes ces informations, récapitule les souhaits (soin, praticien, créneau, nom, contact) et précise que tu vas transmettre au secrétariat. Termine par demander si l'utilisateur a besoin d'autre chose.
+  - Ne confirme jamais un rendez-vous ni un créneau : rappelle que ce sont des préférences et que le secrétariat validera l'horaire final.
 
 Pour une demande de devis :
-  – Demande le type de soin, puis le nom et un contact (téléphone ou e-mail).
-  – Dis que le secrétariat enverra un devis personnalisé.
+  - Demande le type de soin, puis le nom et un contact (téléphone ou e-mail).
+  - Dis que le secrétariat enverra un devis personnalisé.
 
-Style : réponses courtes (1–3 phrases), formules variées, pas de répétitions. Ne parle pas de SMS ou d'e-mail de rappel automatique. N'indique jamais de créneau le samedi ou dimanche (cabinet fermé).
+Style : réponses courtes (1 a 3 phrases), amicales, formules variées, pas de répétitions. Ne parle pas de SMS ou d'e-mail de rappel automatique. N'indique jamais de créneau le samedi ou dimanche (cabinet fermé).
 
-HORAIRES : Lun-Ven 9h–12h30 / 14h–19h30. Fermé le week-end.
+HORAIRES : Lun-Ven 9h 12h30 / 14h-19h30. Fermé le week-end.
 `
 
 const SITE_URLS = [
@@ -292,10 +292,21 @@ ${siteContext || '(indisponible)'}`;
     const lastUserMessage = messages.filter((m: Message) => m.role === 'user').slice(-1)[0]?.content || ''
     
     // Ready to send when: intent + all fields + user said "no thanks"
-    const readyToSend = 
-      (intent === 'appointment' || intent === 'quote') &&
-      hasRequiredFields(intent, patientInfo) &&
-      isNegativeCloseAnswer(lastUserMessage)
+    const hasFields = hasRequiredFields(intent, patientInfo)
+    const isNegative = isNegativeCloseAnswer(lastUserMessage)
+    const hasIntent = (intent === 'appointment' || intent === 'quote')
+    
+    const readyToSend = hasIntent && hasFields && isNegative
+    
+    logger.info('Email trigger check:', {
+      hasIntent,
+      hasFields,
+      isNegative,
+      readyToSend,
+      intent,
+      lastUserMessage,
+      patientInfo
+    })
     
     return NextResponse.json({ 
       response,

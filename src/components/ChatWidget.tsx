@@ -93,19 +93,33 @@ export function ChatWidget() {
       setMessages(prev => [...prev, assistantMessage])
       
       // If ready to send email (user said "no" after closing question)
+      console.log('Email trigger check:', {
+        readyToSend: data.readyToSend,
+        intent: data.intent,
+        patientInfo: data.patientInfo
+      })
+      
       if (data.readyToSend) {
         try {
+          console.log('Sending email with messages:', [...messages, userMessage, assistantMessage])
           const emailResponse = await fetch('/api/chat/send-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ messages: [...messages, userMessage, assistantMessage] })
           })
           
+          const emailData = await emailResponse.json()
+          console.log('Email response:', emailData)
+          
           if (emailResponse.ok) {
             toast.success('Merci, c\'est transmis au secrétariat !')
+          } else {
+            console.error('Email send failed:', emailData)
+            toast.error('Erreur lors de l\'envoi')
           }
         } catch (error) {
           console.error('Email send error:', error)
+          toast.error('Erreur lors de l\'envoi')
         }
       }
     } catch (error) {
