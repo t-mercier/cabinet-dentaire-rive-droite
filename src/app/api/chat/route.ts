@@ -8,11 +8,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { logger } from '@/lib/logger'
-import { createGroq } from '@ai-sdk/groq'
+import { createOpenAI } from '@ai-sdk/openai'
 import { streamText } from 'ai'
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_fake_key_for_build')
-const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
+const openai = createOpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
 const SYSTEM_PROMPT = `Tu es l'assistant·e humain·e du Cabinet Dentaire Rive Droite (Bordeaux). Parle avec naturel, comme une personne au standard : chaleureux·se, bref·e et poli·e. Ne dis jamais que tu es une "IA" ou un "bot".
 
@@ -178,10 +178,10 @@ export async function POST(request: NextRequest) {
     logger.info('POST /api/chat - starting')
     
     // Check for API keys
-    if (!process.env.GROQ_API_KEY) {
-      logger.error('GROQ_API_KEY not configured')
+    if (!process.env.OPENAI_API_KEY) {
+      logger.error('OPENAI_API_KEY not configured')
       return NextResponse.json(
-        { error: 'Configuration error: GROQ_API_KEY not set' },
+        { error: 'Configuration error: OPENAI_API_KEY not set' },
         { status: 500 }
       )
     }
@@ -227,12 +227,12 @@ ${siteContext || '(indisponible)'}`;
 
     logger.info('Formatted messages:', JSON.stringify(formattedMessages, null, 2))
 
-    // Generate AI response with Groq (Llama 3.3 70B - more powerful and nuanced)
+    // Generate AI response with OpenAI (GPT-4o - excellent French and natural conversation)
     const result = await streamText({
-      model: groq('llama-3.3-70b-versatile'),
+      model: openai('gpt-4o'),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       messages: formattedMessages as any,
-      temperature: 0.3, // Lower temperature for more consistent, prompt-following behavior
+      temperature: 0.5, // Balanced temperature for natural conversation
     })
 
     // Get the full response
