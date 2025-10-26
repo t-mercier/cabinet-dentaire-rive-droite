@@ -227,9 +227,9 @@ ${siteContext || '(indisponible)'}`;
 
     logger.info('Formatted messages:', JSON.stringify(formattedMessages, null, 2))
 
-    // Generate AI response with Mistral (Pixtral Large 405B - excellent French, made in France)
+    // Generate AI response with Mistral (Mistral Large - excellent French, made in France)
     const result = await streamText({
-      model: mistral('pixtral-large-2409'),
+      model: mistral('mistral-large-latest'),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       messages: formattedMessages as any,
       temperature: 0.5, // Balanced temperature for natural conversation
