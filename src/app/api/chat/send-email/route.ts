@@ -162,19 +162,11 @@ export async function POST(request: NextRequest) {
       summary = conversationText
     }
 
-    // Build email with summary
+    // Build email with summary only (no duplicate info extraction section)
     let emailBody = ''
     emailBody = `🎯 ${intent === 'appointment' ? 'NOUVELLE DEMANDE DE RENDEZ-VOUS' : 'NOUVELLE DEMANDE DE DEVIS'} via Chatbot\n\n`
     emailBody += `📋 Résumé de la conversation :\n${summary}\n\n`
-    emailBody += `---\n\n`
-    emailBody += `Informations extraites :\n`
-    if (patientInfo.nom) emailBody += `- Nom : ${patientInfo.nom}\n`
-    if (patientInfo.email) emailBody += `- Email : ${patientInfo.email}\n`
-    if (patientInfo.telephone) emailBody += `- Téléphone : ${patientInfo.telephone}\n`
-    if (patientInfo.service) emailBody += `- Service : ${patientInfo.service}\n`
-    if (patientInfo.praticien) emailBody += `- Praticien préféré : ${patientInfo.praticien}\n`
-    if (patientInfo.disponibilites) emailBody += `- Disponibilités : ${patientInfo.disponibilites}\n`
-    emailBody += `\n---\n\n📝 Transcription complète :\n\n${conversationText}`
+    emailBody += `---\n\n📝 Transcription complète :\n\n${conversationText}`
 
     const subject = intent === 'appointment' 
       ? `🎯 NOUVELLE DEMANDE DE RENDEZ-VOUS - ${patientInfo.nom || 'Patient'}`
