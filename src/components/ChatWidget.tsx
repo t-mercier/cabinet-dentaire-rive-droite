@@ -278,10 +278,16 @@ export function ChatWidget() {
                         body: JSON.stringify({ messages })
                       })
                       
+                      const data = await response.json()
+                      
                       if (response.ok) {
                         toast.success('Votre demande a été envoyée au secrétariat !')
+                      } else {
+                        console.error('Email send error:', data)
+                        toast.error(data.error || 'Erreur lors de l\'envoi')
                       }
                     } catch (error) {
+                      console.error('Email send error:', error)
                       toast.error('Erreur lors de l\'envoi')
                     }
                   }}
