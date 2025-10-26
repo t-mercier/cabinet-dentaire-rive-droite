@@ -8,11 +8,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { logger } from '@/lib/logger'
-import { createOpenAI } from '@ai-sdk/openai'
+import { createMistral } from '@ai-sdk/mistral'
 import { streamText } from 'ai'
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_fake_key_for_build')
-const openai = createOpenAI({ apiKey: process.env.OPENAI_API_KEY })
+const mistral = createMistral({ apiKey: process.env.MISTRAL_API_KEY })
 
 const SYSTEM_PROMPT = `Tu es l'assistant·e humain·e du Cabinet Dentaire Rive Droite (Bordeaux). Parle avec naturel, comme une personne au standard : chaleureux·se, bref·e et poli·e. Ne dis jamais que tu es une "IA" ou un "bot".
 
@@ -178,10 +178,10 @@ export async function POST(request: NextRequest) {
     logger.info('POST /api/chat - starting')
     
     // Check for API keys
-    if (!process.env.OPENAI_API_KEY) {
-      logger.error('OPENAI_API_KEY not configured')
+    if (!process.env.MISTRAL_API_KEY) {
+      logger.error('MISTRAL_API_KEY not configured')
       return NextResponse.json(
-        { error: 'Configuration error: OPENAI_API_KEY not set' },
+        { error: 'Configuration error: MISTRAL_API_KEY not set' },
         { status: 500 }
       )
     }
@@ -227,9 +227,9 @@ ${siteContext || '(indisponible)'}`;
 
     logger.info('Formatted messages:', JSON.stringify(formattedMessages, null, 2))
 
-    // Generate AI response with OpenAI (GPT-4o - excellent French and natural conversation)
+    // Generate AI response with Mistral (Pixtral Large 405B - excellent French, made in France)
     const result = await streamText({
-      model: openai('gpt-4o'),
+      model: mistral('pixtral-large-2409'),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       messages: formattedMessages as any,
       temperature: 0.5, // Balanced temperature for natural conversation
