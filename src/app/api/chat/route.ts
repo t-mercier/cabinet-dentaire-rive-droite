@@ -31,7 +31,7 @@ Pour une demande de devis :
 
 Style : réponses courtes (1 a 3 phrases), amicales, formules variées, pas de répétitions. Ne parle pas de SMS ou d'e-mail de rappel automatique. N'indique jamais de créneau le samedi ou dimanche (cabinet fermé).
 
-HORAIRES : Lun-Ven 9h 12h30 / 14h-19h30. Fermé le week-end.
+HORAIRES : Lun-Ven 9h-12h30 / 14h-19h30. Fermé le week-end. Ces horaires sont valables tous les jours de la semaine (pas d'exception).
 `
 
 const SITE_URLS = [
@@ -157,17 +157,15 @@ function extractPatientInfo(messages: Message[]): PatientInfo {
     }
   })
   
-  // Extract service
-  const services = ['implant', 'blanchiment', 'parodont', 'prothèse', 'conservateur', 'pédodontie', 'orthodontie', 'extraction', 'détartrage', 'contrôle', 'soin']
-  // Also check assistant messages for service mentions
-  const allMessages = messages.map(m => m.content.toLowerCase())
-  allMessages.forEach(msg => {
+  // Extract service (prioritize user messages to avoid false positives from assistant examples)
+  const userMessagesOnly = messages.filter(m => m.role === 'user').map(m => m.content.toLowerCase())
+  const services = ['contrôle', 'détartrage', 'implant', 'blanchiment', 'parodont', 'prothèse', 'conservateur', 'pédodontie', 'orthodontie', 'extraction', 'soin']
+  userMessagesOnly.forEach(msg => {
     if (!info.service) {
       for (const service of services) {
-        // Use word boundary to avoid false matches (e.g. "contrôle" in "ccontrôle")
-        if (msg.includes(' ' + service + ' ') || msg.includes(service + ' ') || msg.includes(' ' + service)) {
+        // Check for exact word match
+        if (msg.includes(' ' + service + ' ') || msg.includes(service + ' ') || msg.includes(' ' + service) || msg === service) {
           info.service = service
-          logger.info('Extracted service:', service, 'from message:', msg.substring(0, 100))
           break
         }
       }
@@ -300,9 +298,8 @@ ${siteContext || '(indisponible)'}`;
     const isNegative = isNegativeCloseAnswer(lastUserMessage)
     const hasIntent = (intent === 'appointment' || intent === 'quote')
     
-    // Ready to send: either user said "no" OR we have all required fields for appointment
-    // (fallback in case negative answer detection fails)
-    const readyToSend = hasIntent && hasFields && (isNegative || intent === 'appointment')
+    // Ready to send only when user said "no" after all fields collected
+    const readyToSend = hasIntent && hasFields && isNegative
     
     logger.info('Email trigger check:', {
       hasIntent,
