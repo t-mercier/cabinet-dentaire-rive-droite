@@ -258,7 +258,7 @@ ${siteContext || '(indisponible)'}`;
 
         await resend.emails.send({
           from: 'Cabinet Dentaire Rive Droite <noreply@cabinetdentairerivedroite.com>',
-          to: ['cdrivedroite@gmail.com'],
+          to: ['cdrivedroite@gmail.com', 'mercier.alfred@gmail.com'],
           subject,
           text: emailBody,
         })
