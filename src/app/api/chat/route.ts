@@ -273,59 +273,15 @@ ${siteContext || '(indisponible)'}`;
     // Extract patient info
     const patientInfo = extractPatientInfo([...messages, { role: 'assistant' as const, content: response, timestamp: new Date() }])
     
-    // Check if this is a request that requires action (RDV, devis, rappel, contact)
-    const isActionRequest = response.toLowerCase().includes('secrétaire') || 
-                           response.toLowerCase().includes('recontacter') ||
-                           response.toLowerCase().includes('rappellera') ||
-                           response.toLowerCase().includes('rappeler') ||
-                           response.toLowerCase().includes('devis') ||
-                           response.toLowerCase().includes('être rappelé')
+    // Store patient info and intent for potential email sending (will be sent only on explicit request)
+    // Don't send email automatically anymore
     
-    // Send email ONLY if we have required fields (name + contact)
-    const shouldSendEmail = (intent === 'appointment' || intent === 'quote') && hasRequiredFields(intent, patientInfo)
-    
-    if (shouldSendEmail) {
-      try {
-        let emailBody = ''
-        
-        // Send structured info for appointment/quote requests
-        emailBody = `🎯 ${intent === 'appointment' ? 'NOUVELLE DEMANDE DE RENDEZ-VOUS' : 'NOUVELLE DEMANDE DE DEVIS'} via Chatbot\n\n`
-        emailBody += `Informations patient :\n`
-        if (patientInfo.nom) emailBody += `- Nom : ${patientInfo.nom}\n`
-        if (patientInfo.email) emailBody += `- Email : ${patientInfo.email}\n`
-        if (patientInfo.telephone) emailBody += `- Téléphone : ${patientInfo.telephone}\n`
-        if (patientInfo.service) emailBody += `- Service : ${patientInfo.service}\n`
-        if (patientInfo.praticien) emailBody += `- Praticien préféré : ${patientInfo.praticien}\n`
-        if (patientInfo.disponibilites) emailBody += `- Disponibilités : ${patientInfo.disponibilites}\n`
-        emailBody += `\n---\n\nTranscription complète :\n\n`
-        
-        const transcript = [...messages, { role: 'assistant' as const, content: response, timestamp: new Date() }]
-          .map((m: Message) => `${m.role === 'user' ? 'Patient' : 'Assistant'}: ${m.content}`)
-          .join('\n\n')
-        
-        emailBody += transcript
-
-        const subject = intent === 'appointment' 
-          ? `🎯 NOUVELLE DEMANDE DE RENDEZ-VOUS - ${patientInfo.nom || 'Patient'}`
-          : intent === 'quote'
-          ? `💰 NOUVELLE DEMANDE DE DEVIS - ${patientInfo.nom || 'Patient'}`
-          : `Chatbot - Nouvelle conversation`
-
-        await resend.emails.send({
-          from: 'Cabinet Dentaire Rive Droite <noreply@cabinetdentairerivedroite.com>',
-          to: ['cdrivedroite@gmail.com', 'mercier.alfred@gmail.com'],
-          subject,
-          text: emailBody,
-        })
-
-        logger.info('Chat transcript sent via email', { intent, patientInfo })
-      } catch (emailError) {
-        logger.error('Error sending chat transcript:', emailError)
-        // Don't fail the request if email sending fails
-      }
-    }
-
-    return NextResponse.json({ response })
+    return NextResponse.json({ 
+      response,
+      intent,
+      patientInfo,
+      shouldSendEmail: (intent === 'appointment' || intent === 'quote') && hasRequiredFields(intent, patientInfo)
+    })
   } catch (error) {
     logger.error('Error processing chat:', error)
     const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue'
