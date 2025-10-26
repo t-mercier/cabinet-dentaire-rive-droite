@@ -10,7 +10,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { MessageCircle, X, Send, Sparkles, User } from 'lucide-react'
+import { MessageCircle, X, Send, Sparkles, User, Stethoscope } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface Message {
@@ -125,7 +125,7 @@ export function ChatWidget() {
           <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-t-xl flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                <Sparkles className="w-5 h-5" />
+                <Stethoscope className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="font-semibold">IA Assistant</h3>
@@ -156,7 +156,7 @@ export function ChatWidget() {
                   }`}
                 >
                   {message.role === 'assistant' && (
-                    <Sparkles className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <Stethoscope className="w-4 h-4 mt-0.5 flex-shrink-0" />
                   )}
                   {message.role === 'user' && (
                     <User className="w-4 h-4 mt-0.5 flex-shrink-0" />
