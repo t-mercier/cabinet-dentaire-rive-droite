@@ -290,12 +290,25 @@ ${siteContext || '(indisponible)'}`;
     
     // Post-process to avoid premature confirmations
     // Replace overly affirmative expressions
-    response = response.replace(/je (note|retiens|confirme|fixe)[^\.]*\./gi, 
-      "Je transmettrai ces préférences à notre secrétaire qui vous recontactera.")
-    response = response.replace(/(un\s+SMS|un e-mail|un SMS) de rappel sera envoyé[^\.]*\./gi,
-      "Vous serez contacté·e pour convenir ensemble de l'horaire définitif.")
-    response = response.replace(/votre rendez-vous est (fixé|confirmé|pris)[^\.]*\./gi,
-      "Nous transmettons votre demande au secrétariat qui reviendra vers vous.")
+    response = response
+      .replace(/\bje\s+(note|retiens?|confirme|fixe)\b[^.]*\./gi, 
+        "Je transmettrai ces préférences au secrétariat qui vous recontactera.")
+      .replace(/\b(rendez[-\s]?vous|créneau)\s+(est\s+)?(fixé|confirmé|acté)\b[^.]*\./gi,
+        "Ce sont des préférences ; l'horaire définitif sera fixé avec le secrétariat.")
+      .replace(/(sms|e[-\s]?mail)\s+de\s+rappel\s+sera\s+envoyé[^.]*/gi,
+        "Vous serez recontacté·e pour convenir de l'horaire définitif.")
+    
+    // Remove standalone capitalized words at end (AI sometimes adds random names)
+    // Pattern: "...phrase. RandomWord." -> "...phrase."
+    const lines = response.split('\n')
+    const cleanedLines = lines.map(line => {
+      // Match pattern like "phrase. Word." where Word is capitalized
+      return line.replace(/\.\s+([A-ZÀÂÄÉÈÊË][a-zàâäéèêëù]+)\s*\.$/, '.')
+    })
+    response = cleanedLines.join('\n')
+    
+    // Also handle inline patterns: "phrase. Name."
+    response = response.replace(/\.\s+([A-ZÀÂÄÉÈÊË][a-zàâäéèêëù]+)\s*\.(\s+[A-Z])/g, '.$2')
     
     // Detect intent from conversation
     const conversationText = [...messages.map((m: Message) => m.content), response].join(' ')
