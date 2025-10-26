@@ -24,11 +24,13 @@ STYLE DE RÉPONSE
 PRISE DE RENDEZ-VOUS (mots-clés: "rdv", "rendez-vous", "rendez vous") :
 Pose les questions dans cet ordre naturel :
 1. Pour quel type de soin souhaitez-vous venir ? (Implantologie, Parodontologie, Soins conservateurs, Prothèses, Blanchiment, Pédodontie, etc.)
-2. Quand aimeriez-vous venir ? (Quel jour ou créneau vous conviendrait ?)
-3. Votre nom complet ?
-4. Moyen de contact préféré (email OU téléphone - un seul) et collecte l'info
+2. Avez-vous un dentiste préféré au sein du cabinet ?
+3. Quelles sont vos disponibilités ? (Quels jours ou créneaux vous conviendraient ?)
+4. Votre nom complet ?
+5. Moyen de contact préféré (email OU téléphone - un seul) et collecte l'info
 
-Puis résume et précise qu'une secrétaire recontactera pour confirmer l'heure exacte.
+Puis résume et précise qu'une secrétaire recontactera pour proposer un rendez-vous selon vos disponibilités.
+NE PROPOSE JAMAIS de rendez-vous directement, la secrétaire le fera.
 
 PROCÉDURE DEVIS (mots-clés: "devis", "tarif", "prix") :
 1. Pour quel type de soin et brève description du besoin
@@ -225,13 +227,16 @@ ${siteContext || '(indisponible)'}`;
     // Get the full response
     const response = await result.text
     
-    // Check if this is a rendez-vous confirmation
-    const isRDVConfirmation = response.toLowerCase().includes('secrétaire') || 
-                             response.toLowerCase().includes('recontacter') ||
-                             response.toLowerCase().includes('rappellera')
+    // Check if this is a request that requires action (RDV, devis, rappel, contact)
+    const isActionRequest = response.toLowerCase().includes('secrétaire') || 
+                           response.toLowerCase().includes('recontacter') ||
+                           response.toLowerCase().includes('rappellera') ||
+                           response.toLowerCase().includes('rappeler') ||
+                           response.toLowerCase().includes('devis') ||
+                           response.toLowerCase().includes('être rappelé')
     
-    // Send email if: (1) 3+ messages OR (2) RDV confirmation with at least 2 user messages
-    const shouldSendEmail = (userMessagesCount >= 3) || (isRDVConfirmation && userMessagesCount >= 2)
+    // Send email ONLY for action requests (RDV, devis, rappel, etc.), not for general questions
+    const shouldSendEmail = isActionRequest && userMessagesCount >= 2
     
     if (shouldSendEmail) {
       try {
@@ -240,9 +245,9 @@ ${siteContext || '(indisponible)'}`;
         
         let emailBody = ''
         
-        if (isRDVConfirmation && (patientInfo.nom || patientInfo.email || patientInfo.telephone)) {
+        if (isActionRequest && (patientInfo.nom || patientInfo.email || patientInfo.telephone)) {
           // Send structured info for appointment requests
-          emailBody = `🎯 NOUVEAU RENDEZ-VOUS DEMANDÉ via Chatbot\n\n`
+          emailBody = `🎯 NOUVELLE DEMANDE via Chatbot\n\n`
           emailBody += `Informations patient :\n`
           if (patientInfo.nom) emailBody += `- Nom : ${patientInfo.nom}\n`
           if (patientInfo.email) emailBody += `- Email : ${patientInfo.email}\n`
@@ -252,7 +257,7 @@ ${siteContext || '(indisponible)'}`;
           emailBody += `\n---\n\n`
           emailBody += `Transcription complète :\n\n`
         } else {
-          emailBody = `Conversation via le chatbot AI du site web.\n\nNombre de messages: ${userMessagesCount + 1}\n\n---\n\n`
+          emailBody = `Nouvelle demande via le chatbot du site web.\n\nNombre de messages: ${userMessagesCount + 1}\n\n---\n\n`
         }
         
         const transcript = [...messages, { role: 'assistant' as const, content: response, timestamp: new Date() }]
@@ -261,9 +266,9 @@ ${siteContext || '(indisponible)'}`;
         
         emailBody += transcript
 
-        const subject = isRDVConfirmation 
-          ? `🎯 NOUVEAU RENDEZ-VOUS DEMANDÉ via Chatbot`
-          : `Chatbot AI - Nouvelle conversation (${userMessagesCount} messages)`
+        const subject = isActionRequest 
+          ? `🎯 NOUVELLE DEMANDE via Chatbot`
+          : `Chatbot - Nouvelle conversation`
 
         await resend.emails.send({
           from: 'Cabinet Dentaire Rive Droite <noreply@cabinetdentairerivedroite.com>',
@@ -272,7 +277,7 @@ ${siteContext || '(indisponible)'}`;
           text: emailBody,
         })
 
-        logger.info('Chat transcript sent via email', { isRDVConfirmation, patientInfo })
+        logger.info('Chat transcript sent via email', { isActionRequest, patientInfo })
       } catch (emailError) {
         logger.error('Error sending chat transcript:', emailError)
         // Don't fail the request if email sending fails
