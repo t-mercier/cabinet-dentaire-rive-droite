@@ -164,8 +164,10 @@ function extractPatientInfo(messages: Message[]): PatientInfo {
   allMessages.forEach(msg => {
     if (!info.service) {
       for (const service of services) {
-        if (msg.includes(service)) {
+        // Use word boundary to avoid false matches (e.g. "contrôle" in "ccontrôle")
+        if (msg.includes(' ' + service + ' ') || msg.includes(service + ' ') || msg.includes(' ' + service)) {
           info.service = service
+          logger.info('Extracted service:', service, 'from message:', msg.substring(0, 100))
           break
         }
       }
