@@ -75,6 +75,78 @@ interface Message {
   content: string
 }
 
+interface PatientInfo {
+  nom?: string
+  email?: string
+  telephone?: string
+  service?: string
+  disponibilites?: string
+}
+
+function extractPatientInfo(messages: Message[]): PatientInfo {
+  const info: PatientInfo = {}
+  const userMessages = messages.filter(m => m.role === 'user').map(m => m.content.toLowerCase())
+  
+  // Extract email
+  const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g
+  userMessages.forEach(msg => {
+    const emails = msg.match(emailRegex)
+    if (emails && !info.email) info.email = emails[0]
+  })
+  
+  // Extract phone
+  const phoneRegex = /(\+33|0)[1-9](?:[.\s-]?[0-9]{2}){4}/g
+  userMessages.forEach(msg => {
+    const phones = msg.match(phoneRegex)
+    if (phones && !info.telephone) info.telephone = phones[0].replace(/[\s.-]/g, '')
+  })
+  
+  // Extract name (look for patterns like "Je m'appelle X", "Mon nom est X", etc.)
+  const namePatterns = [
+    /(?:je m'appelle|mon nom est|je suis)\s+([A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+\s+[A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+)/i,
+    /(?:c'est|mes coordonnées sont)\s+([A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+\s+[A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+)/i
+  ]
+  userMessages.forEach(msg => {
+    if (!info.nom) {
+      for (const pattern of namePatterns) {
+        const match = msg.match(pattern)
+        if (match) {
+          info.nom = match[1]
+          break
+        }
+      }
+    }
+  })
+  
+  // Extract service
+  const services = ['implant', 'blanchiment', 'parodont', 'prothèse', 'conservateur', 'pédodontie', 'orthodontie', 'extraction', 'détartrage']
+  userMessages.forEach(msg => {
+    if (!info.service) {
+      for (const service of services) {
+        if (msg.includes(service)) {
+          info.service = service
+          break
+        }
+      }
+    }
+  })
+  
+  // Extract disponibilities (look for days and times)
+  const days = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']
+  const timePattern = /\d{1,2}h\d{0,2}|\d{1,2}:\d{2}/
+  userMessages.forEach(msg => {
+    if (!info.disponibilites) {
+      const foundDays = days.filter(d => msg.includes(d))
+      const foundTime = msg.match(timePattern)
+      if (foundDays.length > 0 || foundTime) {
+        info.disponibilites = msg.substring(0, 100) // Take first 100 chars as context
+      }
+    }
+  })
+  
+  return info
+}
+
 export async function POST(request: NextRequest) {
   try {
     logger.info('POST /api/chat - starting')
@@ -150,9 +222,31 @@ ${siteContext || '(indisponible)'}`;
     
     if (shouldSendEmail) {
       try {
+        // Extract patient info from messages
+        const patientInfo = extractPatientInfo([...messages, { role: 'assistant' as const, content: response, timestamp: new Date() }])
+        
+        let emailBody = ''
+        
+        if (isRDVConfirmation && (patientInfo.nom || patientInfo.email || patientInfo.telephone)) {
+          // Send structured info for appointment requests
+          emailBody = `🎯 NOUVEAU RENDEZ-VOUS DEMANDÉ via Chatbot\n\n`
+          emailBody += `Informations patient :\n`
+          if (patientInfo.nom) emailBody += `- Nom : ${patientInfo.nom}\n`
+          if (patientInfo.email) emailBody += `- Email : ${patientInfo.email}\n`
+          if (patientInfo.telephone) emailBody += `- Téléphone : ${patientInfo.telephone}\n`
+          if (patientInfo.service) emailBody += `- Service : ${patientInfo.service}\n`
+          if (patientInfo.disponibilites) emailBody += `- Disponibilités : ${patientInfo.disponibilites}\n`
+          emailBody += `\n---\n\n`
+          emailBody += `Transcription complète :\n\n`
+        } else {
+          emailBody = `Conversation via le chatbot AI du site web.\n\nNombre de messages: ${userMessagesCount + 1}\n\n---\n\n`
+        }
+        
         const transcript = [...messages, { role: 'assistant' as const, content: response, timestamp: new Date() }]
           .map((m: Message) => `${m.role === 'user' ? 'Patient' : 'Assistant'}: ${m.content}`)
           .join('\n\n')
+        
+        emailBody += transcript
 
         const subject = isRDVConfirmation 
           ? `🎯 NOUVEAU RENDEZ-VOUS DEMANDÉ via Chatbot`
@@ -160,12 +254,12 @@ ${siteContext || '(indisponible)'}`;
 
         await resend.emails.send({
           from: 'Cabinet Dentaire Rive Droite <noreply@cabinetdentairerivedroite.com>',
-          to: ['cdrivedroite@gmail.com'], // Testing email for now
+          to: ['cdrivedroite@gmail.com'],
           subject,
-          text: `${isRDVConfirmation ? '🎯 NOUVEAU RENDEZ-VOUS DEMANDÉ\n\n' : ''}Conversation via le chatbot AI du site web.\n\nNombre de messages: ${userMessagesCount + 1}\n\n---\n\n${transcript}`,
+          text: emailBody,
         })
 
-        logger.info('Chat transcript sent via email', { isRDVConfirmation })
+        logger.info('Chat transcript sent via email', { isRDVConfirmation, patientInfo })
       } catch (emailError) {
         logger.error('Error sending chat transcript:', emailError)
         // Don't fail the request if email sending fails
