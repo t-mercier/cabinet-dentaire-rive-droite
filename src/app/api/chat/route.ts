@@ -159,7 +159,9 @@ function extractPatientInfo(messages: Message[]): PatientInfo {
   
   // Extract service
   const services = ['implant', 'blanchiment', 'parodont', 'prothèse', 'conservateur', 'pédodontie', 'orthodontie', 'extraction', 'détartrage', 'contrôle', 'soin']
-  userMessages.forEach(msg => {
+  // Also check assistant messages for service mentions
+  const allMessages = messages.map(m => m.content.toLowerCase())
+  allMessages.forEach(msg => {
     if (!info.service) {
       for (const service of services) {
         if (msg.includes(service)) {
