@@ -1,5 +1,5 @@
 /**
- * API Route for chat assistant with Groq AI (Llama 3)
+ * API Route for chat assistant
  * 
  * Purpose: Handle chat messages with intelligent AI responses
  * Features: Context-aware conversations, sends transcript to email
