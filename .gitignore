@@ -68,5 +68,10 @@ scripts/
 *.swo
 *~
 
+# Container/Dev container
 .devcontainer/
-.devcontainer/
+
+# Cache directories
+.cache/
+.turbo/
+.eslintcache
