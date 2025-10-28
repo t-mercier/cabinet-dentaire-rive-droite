@@ -107,12 +107,14 @@ function hasRequiredFields(intent: string, info: PatientInfo): boolean {
   return false
 }
 
+// TODO: elargir la negation a merci, plus autres expresions.
+
 // Detect if user said "no" to closing question
 function isNegativeCloseAnswer(text: string): boolean {
   const t = text.toLowerCase().trim()
   return [
     'non', 'non merci', 'c\'est bon', "c'est bon", 'ça ira', 'merci c\'est tout',
-    "merci c'est tout", 'parfait merci', 'tout bon', 'ça me va', 'aucune autre'
+    "merci c'est tout", 'parfait merci', 'tout bon', 'ça me va', 'aucune autre', 'merci', 'c bon'
   ].some(p => t.includes(p))
 }
 
