@@ -3,5 +3,29 @@
   "outputDirectory": ".next",
   "framework": "nextjs",
   "installCommand": "pnpm install",
-  "devCommand": "pnpm dev"
+  "devCommand": "pnpm dev",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "scp-azma-chevalier-eloi-seguela.chirurgiens-dentistes.fr"
+        }
+      ],
+      "destination": "https://www.cabinetdentairerivedroite.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.scp-azma-chevalier-eloi-seguela.chirurgiens-dentistes.fr"
+        }
+      ],
+      "destination": "https://www.cabinetdentairerivedroite.com/:path*",
+      "permanent": true
+    }
+  ]
 }
