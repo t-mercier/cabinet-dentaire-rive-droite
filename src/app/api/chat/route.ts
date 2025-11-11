@@ -196,6 +196,16 @@ readyToSend = TRUE UNIQUEMENT si :
 - (intent = appointment OU quote) 
 - ET isComplete = true 
 - ET userWantsToClose = true
+- ET c'est la PREMIÈRE fois (pas déjà mentionné "je transmets" dans une réponse précédente de l'assistant)
+
+⚠️ IMPORTANT : Si l'assistant a DÉJÀ dit "Je transmets au secrétariat" dans l'historique, alors readyToSend = FALSE
+SAUF si le patient modifie une info importante après (changement de dispo, nouveau soin, correction de contact).
+
+🔄 CAS SPÉCIAUX APRÈS ENVOI :
+- Patient modifie ses disponibilités → readyToSend = TRUE (réenvoyer avec mise à jour)
+- Patient ajoute un soin supplémentaire → readyToSend = TRUE (nouvelle demande)
+- Patient corrige son contact → readyToSend = TRUE (info cruciale changée)
+- Patient juste papote ("ça va toi ?", "merci", "haha") → readyToSend = FALSE (pas de nouvelle action)
 
 Sois précis dans tes extractions. En cas de doute, mets null.`,
       prompt: `Analyse cette conversation complète :
