@@ -313,7 +313,7 @@ export async function POST(request: NextRequest) {
       : `Chatbot - Nouvelle conversation`
 
     await resend.emails.send({
-      from: 'Cabinet Dentaire Rive Droite <contact@cabinetdentairerivedroite.com>',
+      from: 'Cabinet Dentaire Rive Droite <cdrivedroite@gmail.com>',
       to: ['cdrivedroite@gmail.com', 'cabinetdentaireaces@gmail.com'],
       subject,
       text: emailBody,
