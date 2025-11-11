@@ -21,80 +21,204 @@ interface PatientInfo {
   praticien?: string
 }
 
+const SERVICE_KEYWORDS = [
+  { canonical: 'contrôle', tokens: ['controle', 'controle annuel'] },
+  { canonical: 'détartrage', tokens: ['detartrage', 'detartage', 'detartrer'] },
+  { canonical: 'implant', tokens: ['implant', 'implantologie'] },
+  { canonical: 'blanchiment', tokens: ['blanchiment'] },
+  { canonical: 'parodontie', tokens: ['parodont', 'parodontie'] },
+  { canonical: 'prothèse', tokens: ['prothese', 'protheses', 'prothese dentaire', 'couronne', 'bridge'] },
+  { canonical: 'conservateur', tokens: ['conservateur', 'soins conservateurs', 'carie'] },
+  { canonical: 'pédodontie', tokens: ['pedodontie', 'dent de lait', 'enfant'] },
+  { canonical: 'orthodontie', tokens: ['orthodontie', 'appareil dentaire', 'appareil'] },
+  { canonical: 'extraction', tokens: ['extraction', 'arracher', 'dent de sagesse', 'sagesse'] },
+  { canonical: 'soin', tokens: ['soin', 'consultation'] }
+]
+
+const PRACTITIONER_KEYWORDS = [
+  { label: 'Dr. Azma', tokens: ['azma'] },
+  { label: 'Dr. Chevalier', tokens: ['chevalier'] },
+  { label: 'Dr. Seguela', tokens: ['seguela'] },
+  { label: 'Dr. Mercier', tokens: ['mercier'] },
+  { label: 'Dr. Liotard', tokens: ['liotard'] },
+  { label: 'Dr. Aumailley', tokens: ['aumailley'] }
+]
+
+const BANNED_NAME_WORDS = new Set([
+  'disponible',
+  'dispo',
+  'matin',
+  'apres',
+  'soir',
+  'jour',
+  'jours',
+  'lundi',
+  'mardi',
+  'mercredi',
+  'jeudi',
+  'vendredi',
+  'samedi',
+  'dimanche',
+  'docteur',
+  'docteure',
+  'dr',
+  'doct',
+  'cabinet',
+  'bonjour',
+  'merci',
+  'rdv',
+  'rendez',
+  'souhaite',
+  'souhait',
+  'numero',
+  'num',
+  'telephone',
+  'tel',
+  'mail',
+  'email',
+  'contact',
+  'besoin',
+  'madame',
+  'monsieur',
+  'patient',
+  'patiente'
+])
+
+function normalizeText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+}
+
+function cleanWhitespace(value: string): string {
+  return value.replace(/\s+/g, ' ').trim()
+}
+
+function isLikelyNameCandidate(candidate: string): boolean {
+  const cleaned = cleanWhitespace(candidate).replace(/[,.;!?]+$/u, '').trim()
+  if (!cleaned) return false
+  const words = cleaned.split(/\s+/)
+  if (words.length < 2 || words.length > 4) return false
+  const normalizedWords = words.map(normalizeText)
+  if (normalizedWords.some(word => BANNED_NAME_WORDS.has(word))) return false
+  return true
+}
+
+function formatNameCandidate(candidate: string): string {
+  const sanitized = cleanWhitespace(candidate).replace(/[,.;!?]+$/u, '')
+  return sanitized
+    .split(/\s+/)
+    .map(word =>
+      word
+        .split('-')
+        .map(segment =>
+          segment ? segment[0].toUpperCase() + segment.slice(1).toLowerCase() : segment
+        )
+        .join('-')
+    )
+    .join(' ')
+}
+
+function extractNameCandidate(raw: string): { value: string; score: number } | null {
+  const prefixMatch = raw.match(
+    /(?:Je m'appelle|je m'appelle|Mon nom est|mon nom est|Je me nomme|je me nomme|Je suis|je suis|C'est|c'est)\s+([^.,;!?\\n]+)/u
+  )
+  if (prefixMatch) {
+    const candidate = cleanWhitespace(prefixMatch[1])
+    if (isLikelyNameCandidate(candidate)) {
+      const prefix = prefixMatch[0].toLowerCase()
+      const score = prefix.includes("je m'appelle") || prefix.includes('mon nom est') || prefix.includes('je me nomme') ? 3 : 2
+      return { value: formatNameCandidate(candidate), score }
+    }
+  }
+
+  const simpleMatch = raw.match(
+    /^\s*([A-ZÀÂÄÉÈÊËÎÏÔÙÛÜÇ][\p{L}'-]+(?:\s+[A-ZÀÂÄÉÈÊËÎÏÔÙÛÜÇ][\p{L}'-]+)+)\s*$/u
+  )
+  if (simpleMatch) {
+    const candidate = cleanWhitespace(simpleMatch[1])
+    if (isLikelyNameCandidate(candidate)) {
+      return { value: formatNameCandidate(candidate), score: 2 }
+    }
+  }
+
+  return null
+}
+
 function extractPatientInfo(messages: Message[]): PatientInfo {
   const info: PatientInfo = {}
-  const userMessages = messages.filter(m => m.role === 'user').map(m => m.content.toLowerCase())
-  
-  // Extract email
+  const userMessagesRaw = messages
+    .filter(m => m.role === 'user')
+    .map(m => cleanWhitespace(m.content))
+    .filter(Boolean)
+
+  const userMessagesNormalized = userMessagesRaw.map(normalizeText)
+
   const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g
-  userMessages.forEach(msg => {
-    const emails = msg.match(emailRegex)
-    if (emails && !info.email) info.email = emails[0]
-  })
-  
-  // Extract phone
   const phoneRegex = /(\+33|0)[1-9](?:[.\s-]?[0-9]{2}){4}/g
-  userMessages.forEach(msg => {
-    const phones = msg.match(phoneRegex)
-    if (phones && !info.telephone) info.telephone = phones[0].replace(/[\s.-]/g, '')
-  })
-  
-  // Extract name
-  const namePatterns = [
-    /(?:je m'appelle|mon nom est|je suis|c'est)\s+([A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+\s+[A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+)/i,
-    /^([A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+\s+[A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+)$/i
-  ]
-  userMessages.forEach(msg => {
-    if (!info.nom) {
-      for (const pattern of namePatterns) {
-        const match = msg.match(pattern)
-        if (match) {
-          info.nom = match[1]
-          break
-        }
+
+  let bestName: { value: string; score: number } | null = null
+
+  for (let i = 0; i < userMessagesRaw.length; i += 1) {
+    const raw = userMessagesRaw[i]
+    const normalized = userMessagesNormalized[i]
+
+    if (!info.email) {
+      const emails = raw.match(emailRegex)
+      if (emails && emails.length > 0) {
+        info.email = emails[0]
       }
     }
-  })
-  
-  // Extract service
-  const services = ['implant', 'blanchiment', 'parodont', 'prothèse', 'conservateur', 'pédodontie', 'orthodontie', 'extraction', 'détartrage', 'contrôle', 'soin']
-  userMessages.forEach(msg => {
+
+    if (!info.telephone) {
+      const phones = raw.match(phoneRegex)
+      if (phones && phones.length > 0) {
+        info.telephone = phones[0].replace(/[\s.-]/g, '')
+      }
+    }
+
     if (!info.service) {
-      for (const service of services) {
-        if (msg.includes(service)) {
-          info.service = service
+      for (const entry of SERVICE_KEYWORDS) {
+        if (entry.tokens.some(token => normalized.includes(token))) {
+          info.service = entry.canonical
           break
         }
       }
     }
-  })
-  
-  // Extract praticien
-  const praticiens = ['azma', 'chevalier', 'seguela', 'mercier', 'liotard', 'aumailley']
-  userMessages.forEach(msg => {
+
     if (!info.praticien) {
-      for (const praticien of praticiens) {
-        if (msg.includes(praticien)) {
-          info.praticien = `Dr. ${praticien.charAt(0).toUpperCase() + praticien.slice(1)}`
-          break
+      const mentionsPractitioner = /\b(dr|docteur|docteure|dentiste|praticien|praticienne)\b/.test(normalized)
+      if (mentionsPractitioner) {
+        for (const entry of PRACTITIONER_KEYWORDS) {
+          if (entry.tokens.some(token => normalized.includes(token))) {
+            info.praticien = entry.label
+            break
+          }
         }
       }
     }
-  })
-  
-  // Extract disponibilities
-  const days = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']
-  const timePattern = /\d{1,2}h\d{0,2}|\d{1,2}:\d{2}/
-  userMessages.forEach(msg => {
+
     if (!info.disponibilites) {
-      const foundDays = days.filter(d => msg.includes(d))
-      const foundTime = msg.match(timePattern)
-      if (foundDays.length > 0 || foundTime) {
-        info.disponibilites = msg.substring(0, 100)
+      const daysPattern = /\b(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\b/i
+      const timePattern = /\b(\d{1,2}h\d{0,2}|\d{1,2}:\d{2})\b/
+      if (daysPattern.test(raw) || timePattern.test(raw)) {
+        info.disponibilites = raw.substring(0, 120)
       }
     }
-  })
-  
+
+    const nameCandidate = extractNameCandidate(raw)
+    if (nameCandidate) {
+      if (!bestName || nameCandidate.score >= bestName.score) {
+        bestName = nameCandidate
+      }
+    }
+  }
+
+  if (bestName) {
+    info.nom = bestName.value
+  }
+
   return info
 }
 
@@ -112,7 +236,7 @@ function detectIntent(conversation: string): 'appointment' | 'quote' | 'other' {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { messages } = body
+    const { messages, intent: providedIntent, patientInfo: providedPatientInfo } = body
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
@@ -121,13 +245,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Detect intent and extract patient info from full conversation
-    const fullConversation = messages.map((m: Message) => m.content).join(' ')
-    const intent = detectIntent(fullConversation)
-    const patientInfo = extractPatientInfo(messages)
+    // Use provided analysis from /api/chat if available, otherwise fallback to local extraction
+    let intent: 'appointment' | 'quote' | 'other'
+    let patientInfo: PatientInfo
+
+    if (providedIntent && providedPatientInfo) {
+      // Use AI analysis from /api/chat
+      intent = providedIntent as 'appointment' | 'quote' | 'other'
+      patientInfo = providedPatientInfo
+      logger.info('Using provided AI analysis for email', { intent, patientInfo })
+    } else {
+      // Fallback: extract locally (for backwards compatibility)
+      const fullConversation = messages.map((m: Message) => m.content).join(' ')
+      intent = detectIntent(fullConversation)
+      patientInfo = extractPatientInfo(messages)
+      logger.info('Using local extraction for email', { intent, patientInfo })
+    }
 
     // Only send email if there's an actionable request (appointment or quote)
     if (intent !== 'appointment' && intent !== 'quote') {
+      logger.warn('No actionable intent detected', { intent })
       return NextResponse.json(
         { error: 'Aucune demande d\'action détectée' },
         { status: 400 }
@@ -137,6 +274,7 @@ export async function POST(request: NextRequest) {
     // Check if we have required fields
     const hasRequiredFields = patientInfo.nom && (patientInfo.email || patientInfo.telephone)
     if (!hasRequiredFields) {
+      logger.warn('Missing required fields', { patientInfo })
       return NextResponse.json(
         { error: 'Informations manquantes (nom et contact requis)' },
         { status: 400 }
@@ -152,8 +290,8 @@ export async function POST(request: NextRequest) {
     try {
       const { text } = await generateText({
         model: mistral('mistral-large-latest'),
-        system: 'Tu es un assistant qui résume les conversations de manière concise pour le secrétariat d\'un cabinet dentaire. Extrait uniquement les informations essentielles : nom du patient, type de demande (RDV ou devis), soin concerné, praticien préféré, disponibilités, moyen de contact.',
-        prompt: `Résume cette conversation en extrayant les informations essentielles pour le secrétariat :\n\n${conversationText}`,
+        system: 'Tu es un assistant qui résume les conversations de manière concise pour le secrétariat d\'un cabinet dentaire. Extrait uniquement les informations essentielles : nom du patient, type de demande (RDV ou devis), soin concerné, praticien préféré, disponibilités, moyen de contact. IMPORTANT : Utilise un format TEXTE SIMPLE sans Markdown (pas de **, pas de #, pas de -, juste du texte avec des retours à la ligne).',
+        prompt: `Résume cette conversation en extrayant les informations essentielles pour le secrétariat :\n\n${conversationText}\n\nFormat attendu :\nNom du patient : [nom]\nType de demande : [RDV ou Devis]\nSoin concerné : [soin]\nPraticien préféré : [praticien]\nDisponibilités : [créneaux]\nMoyen de contact : [téléphone ou email]`,
         temperature: 0.3
       })
       summary = text
@@ -162,11 +300,11 @@ export async function POST(request: NextRequest) {
       summary = conversationText
     }
 
-    // Build email with summary only (no duplicate info extraction section)
+    // Build email with summary only (no full transcript)
     let emailBody = ''
     emailBody = `🎯 ${intent === 'appointment' ? 'NOUVELLE DEMANDE DE RENDEZ-VOUS' : 'NOUVELLE DEMANDE DE DEVIS'} via Chatbot\n\n`
     emailBody += `📋 Résumé de la conversation :\n${summary}\n\n`
-    emailBody += `---\n\n📝 Transcription complète :\n\n${conversationText}`
+    emailBody += `---\n\n� Traiter cette demande en priorité - Le patient attend une confirmation.`
 
     const subject = intent === 'appointment' 
       ? `🎯 NOUVELLE DEMANDE DE RENDEZ-VOUS - ${patientInfo.nom || 'Patient'}`
@@ -175,8 +313,8 @@ export async function POST(request: NextRequest) {
       : `Chatbot - Nouvelle conversation`
 
     await resend.emails.send({
-      from: 'Cabinet Dentaire Rive Droite <noreply@cabinetdentairerivedroite.com>',
-      to: ['cdrivedroite@gmail.com', 'mercier.alfred@gmail.com'],
+      from: 'Cabinet Dentaire Rive Droite <contact@cabinetdentairerivedroite.com>',
+      to: ['cdrivedroite@gmail.com', 'cabinetdentaireaces@gmail.com'],
       subject,
       text: emailBody,
     })
@@ -203,3 +341,4 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+

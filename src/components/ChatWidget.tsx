@@ -9,8 +9,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { MessageCircle, X, Send, Sparkles, User, Stethoscope } from 'lucide-react'
+import { MessageCircle, X, Send, User, Stethoscope } from 'lucide-react'
 import { toast } from 'sonner'
 import ReactMarkdown from 'react-markdown'
 
@@ -92,6 +91,9 @@ export function ChatWidget() {
 
       setMessages(prev => [...prev, assistantMessage])
       
+      // Refocus input after receiving response
+      setTimeout(() => inputRef.current?.focus(), 100)
+      
       // If ready to send email (user said "no" after closing question)
       console.log('Email trigger check:', {
         readyToSend: data.readyToSend,
@@ -101,11 +103,19 @@ export function ChatWidget() {
       
       if (data.readyToSend) {
         try {
-          console.log('Sending email with messages:', [...messages, userMessage, assistantMessage])
+          console.log('Sending email with analysis:', {
+            messages: [...messages, userMessage, assistantMessage],
+            intent: data.intent,
+            patientInfo: data.patientInfo
+          })
           const emailResponse = await fetch('/api/chat/send-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ messages: [...messages, userMessage, assistantMessage] })
+            body: JSON.stringify({ 
+              messages: [...messages, userMessage, assistantMessage],
+              intent: data.intent,
+              patientInfo: data.patientInfo
+            })
           })
           
           const emailData = await emailResponse.json()
@@ -132,6 +142,9 @@ export function ChatWidget() {
         timestamp: new Date()
       }
       setMessages(prev => [...prev, errorMessage])
+      
+      // Refocus input even on error
+      setTimeout(() => inputRef.current?.focus(), 100)
     } finally {
       setIsLoading(false)
     }
@@ -260,6 +273,9 @@ export function ChatWidget() {
                     }
 
                     setMessages(prev => [...prev, assistantMessage])
+                    
+                    // Refocus input after quick action
+                    setTimeout(() => inputRef.current?.focus(), 100)
                   } catch (error) {
                     console.error('Chat error:', error)
                     toast.error('Erreur lors de l\'envoi du message')
@@ -271,6 +287,9 @@ export function ChatWidget() {
                     }
 
                     setMessages(prev => [...prev, errorMessage])
+                    
+                    // Refocus input even on error
+                    setTimeout(() => inputRef.current?.focus(), 100)
                   } finally {
                     setIsLoading(false)
                   }

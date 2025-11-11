@@ -1,37 +1,74 @@
 /**
  * API Route for chat assistant
- * 
+ *
  * Purpose: Handle chat messages with intelligent AI responses
- * Features: Context-aware conversations, sends transcript to email
+ * Features: AI-powered conversation management, intelligent data extraction
+ *
+ * This implementation uses AI to:
+ * - Extract patient information (name, contact, preferences)
+ * - Determine conversation intent and readiness
+ * - Decide when to close conversation and send email
+ *
+ * Benefits over pattern matching:
+ * - More flexible and natural language understanding
+ * - Handles edge cases and variations automatically
+ * - Less maintenance (no keyword lists)
+ * - Better user experience
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
 import { logger } from '@/lib/logger'
 import { createMistral } from '@ai-sdk/mistral'
-import { streamText } from 'ai'
+import { streamText, generateObject } from 'ai'
+import { z } from 'zod'
 
-const resend = new Resend(process.env.RESEND_API_KEY || 're_fake_key_for_build')
 const mistral = createMistral({ apiKey: process.env.MISTRAL_API_KEY })
 
-const SYSTEM_PROMPT = `Tu es l'assistant·e humain·e du Cabinet Dentaire Rive Droite (Bordeaux). 
-Ton ton est naturel, chaleureux et professionnel (jamais "je suis un bot" ou "IA").
+const SYSTEM_PROMPT = `Tu es l'assistant·e du Cabinet Dentaire Rive Droite (Bordeaux).
+Ton rôle : aider les patients à prendre rendez-vous, obtenir un devis, ou répondre à leurs questions.
 
-Lorsqu'un patient veut prendre rendez-vous :
-  - Demande quel type de soin ou consultation il souhaite (contrôle, détartrage, implant, etc.).
-  - Demande ensuite s'il a une préférence pour un praticien (les noms sont dans le CONTEXTE_SITE, ne les liste pas dans ta question).
-  - Demande quels jours ou quels créneaux conviendraient (jour ou plage horaire).
-  - Demande enfin son nom complet et son moyen de contact préféré (téléphone ou e-mail). N'assume jamais le genre de l'utilisateur, reste neutre.
-  - Lorsque tu as toutes ces informations, récapitule les souhaits (soin, praticien, créneau, nom, contact) et précise que tu vas transmettre au secrétariat. Termine par demander si l'utilisateur a besoin d'autre chose.
-  - Ne confirme jamais un rendez-vous ni un créneau : rappelle que ce sont des préférences et que le secrétariat validera l'horaire final.
+🎯 DÉTECTION AUTOMATIQUE DE L'INTENT :
+- Si le patient veut un RDV → Flow "Rendez-vous"
+- Si le patient veut un devis → Flow "Devis"  
+- Si le patient pose une question → Réponds avec les infos du site
+- Si le patient veut juste discuter → Redirige poliment vers les services
 
-Pour une demande de devis :
-  - Demande le type de soin, puis le nom et un contact (téléphone ou e-mail).
-  - Dis que le secrétariat enverra un devis personnalisé.
+📋 FLOW RENDEZ-VOUS (collecte dans l'ordre) :
+1. Type de soin ? (contrôle, détartrage, implant, blanchiment, etc.)
+2. Préférence de praticien ? (optionnel - ne pas insister)
+3. Disponibilités ? (jours/horaires préférés)
+4. Nom complet ?
+5. Contact ? (téléphone 10 chiffres OU email avec @)
 
-Style : réponses courtes (1 a 3 phrases), amicales, formules variées, pas de répétitions. Ne parle pas de SMS ou d'e-mail de rappel automatique. N'indique jamais de créneau le samedi ou dimanche (cabinet fermé).
+Une fois TOUTES les infos collectées → Récapitulatif + "Je transmets au secrétariat" + "Besoin d'autre chose ?"
 
-HORAIRES : Lun-Ven 9h-19h30. Fermé le week-end. Ces horaires sont valables tous les jours de la semaine (pas d'exception).
+💰 FLOW DEVIS (collecte dans l'ordre) :
+1. Type de soin ?
+2. Nom complet ?
+3. Contact ? (téléphone 10 chiffres OU email avec @)
+
+Une fois TOUTES les infos collectées → Récapitulatif + "Je transmets pour devis" + "Besoin d'autre chose ?"
+
+✅ RÈGLES DE VALIDATION :
+- Téléphone : DOIT avoir 10 chiffres minimum (ex: 0612345678)
+  → Si moins de 10 chiffres : "Ce numéro semble incomplet, peux-tu me donner les 10 chiffres ?"
+- Email : DOIT avoir @ et un point
+  → Si invalide : "Cet email semble incomplet, peux-tu vérifier ?"
+- Ne JAMAIS dire "je transmets" avant d'avoir un contact valide
+
+🚫 INTERDICTIONS :
+- Ne dis PAS "je note", "je retiens", "je transmets" PENDANT la collecte
+- Ne confirme JAMAIS un RDV ou un créneau définitif
+- Pas de SMS/email automatique - juste "le secrétariat vous recontactera"
+- Pas de RDV samedi/dimanche (cabinet fermé)
+
+💬 STYLE :
+- Naturel, chaleureux, professionnel
+- Réponses courtes (1-2 phrases max)
+- Tutoiement ou vouvoiement selon le ton du patient
+- Jamais "je suis un bot" ou "IA"
+
+⏰ HORAIRES : Lun-Ven 9h-19h30. Fermé week-end.
 `
 
 const SITE_URLS = [
@@ -64,151 +101,156 @@ async function fetchSiteContext() {
 }
 
 
+// ==================== TYPE DEFINITIONS ====================
+
 interface Message {
   role: 'user' | 'assistant'
   content: string
 }
 
-interface PatientInfo {
-  nom?: string
-  email?: string
-  telephone?: string
-  service?: string
-  disponibilites?: string
-  praticien?: string
-}
+// Zod schemas for AI-powered structured extraction
+const ConversationAnalysisSchema = z.object({
+  intent: z.enum(['appointment', 'quote', 'question', 'other']).describe('The primary intent of the user in this conversation'),
 
-// Detect intent from user message
-function detectIntent(text: string): 'appointment' | 'quote' | 'other' {
-  const t = text.toLowerCase()
-  if (/\b(rendez|rdv|prendre rendez|prendre rdv)\b/.test(t)) return 'appointment'
-  if (/\b(devis|estimation|prix approximatif|combien|coût|tarif)\b/.test(t)) return 'quote'
-  return 'other'
-}
+  patientInfo: z.object({
+    nom: z.string().nullable().describe('Full name of the patient (e.g., "Jean Dupont"). Extract ONLY if explicitly provided. Should be capitalized properly.'),
+    email: z.string().nullable().describe('Email address if provided. Must contain @ and a domain (e.g., test@example.com). Return null if invalid format or missing @ or dot.'),
+    telephone: z.string().nullable().describe('Phone number if provided. Must contain at least 10 digits. Return null if less than 10 digits (e.g., "071123" is invalid, return null).'),
+    service: z.string().nullable().describe('Type of dental service requested (e.g., "contrôle", "détartrage", "implant", "blanchiment", "prothèse", etc.)'),
+    praticien: z.string().nullable().describe('Preferred practitioner if mentioned (e.g., "Dr. Azma", "Dr. Chevalier", "Dr. Seguela", "Dr. Mercier", "Dr. Liotard", "Dr. Aumailley")'),
+    disponibilites: z.string().nullable().describe('Patient\'s availability preferences (days, times, date ranges). Combine all mentions into a readable summary.')
+  }).describe('Extracted patient information from the conversation'),
 
-// Check if all required fields for appointment are present
-function hasAllAppointmentFields(info: PatientInfo): boolean {
-  return Boolean(
-    info?.service &&
-    info?.disponibilites &&
-    info?.nom &&
-    (info?.email || info?.telephone)
-  )
-}
+  hasValidContact: z.boolean().describe('True if email is valid (contains @ and .) OR telephone is valid (at least 10 digits). False otherwise.'),
 
-// Check if required fields are present based on intent
-function hasRequiredFields(intent: string, info: PatientInfo): boolean {
-  if (intent === 'appointment') {
-    return hasAllAppointmentFields(info)
+  isComplete: z.boolean().describe('True if all required information has been collected based on the intent'),
+
+  missingFields: z.array(z.string()).describe('List of missing required fields (e.g., ["nom", "contact"])'),
+
+  userWantsToClose: z.boolean().describe('True if the user\'s last message indicates they are done (e.g., "Merci", "C\'est tout", "Non merci", "Parfait" after a summary)'),
+
+  readyToSend: z.boolean().describe('True if: (1) intent is appointment or quote, (2) all required fields are complete, AND (3) user wants to close the conversation'),
+
+  reasoning: z.string().describe('Brief explanation of the analysis (for debugging)')
+})
+
+type ConversationAnalysis = z.infer<typeof ConversationAnalysisSchema>
+
+// ==================== AI-POWERED CONVERSATION ANALYSIS ====================
+
+/**
+ * Analyze the entire conversation using AI with structured output
+ * This replaces pattern matching with intelligent extraction
+ *
+ * Benefits:
+ * - Understands context and nuance
+ * - Handles typos and variations naturally
+ * - Single source of truth for all extraction logic
+ * - Self-documenting through schema
+ * - AI validates contact information (phone/email) directly
+ */
+async function analyzeConversation(messages: Message[]): Promise<ConversationAnalysis> {
+  try {
+    const conversationText = messages
+      .map(m => `${m.role === 'user' ? 'Patient' : 'Assistant'}: ${m.content}`)
+      .join('\n')
+
+    const lastUserMessage = messages.filter(m => m.role === 'user').slice(-1)[0]?.content || ''
+    const lastAssistantMessage = messages.filter(m => m.role === 'assistant').slice(-1)[0]?.content || ''
+
+    const result = await generateObject({
+      model: mistral('mistral-large-latest'),
+      schema: ConversationAnalysisSchema,
+      system: `Tu es un expert en analyse de conversations pour un cabinet dentaire.
+
+🎯 TON RÔLE : Extraire les informations clés de la conversation et déterminer son état.
+
+📝 EXTRACTION DES DONNÉES :
+
+**Nom** : Extraire uniquement si explicitement donné (ex: "Je m'appelle Jean Dupont", "Jean Dupont", "timothee")
+
+**Téléphone** : Compter les chiffres. Si >= 10 chiffres → extraire. Si < 10 chiffres (ex: "071123" = 6 chiffres) → null
+
+**Email** : Vérifier présence de @ ET d'un point après le @. Si non → null
+
+**Service** : Type de soin (contrôle, détartrage, implant, blanchiment, prothèse, parodontie, pédodontie, etc.)
+
+**Praticien** : Si mentionné (Dr. Azma, Chevalier, Seguela, Mercier, Liotard, Aumailley)
+
+**Disponibilités** : Jours/horaires préférés, résumés clairement
+
+**hasValidContact** : 
+- TRUE si téléphone valide (≥10 chiffres) OU email valide (@ + point)
+- FALSE sinon
+
+✅ COMPLÉTUDE :
+- RDV : Requis = service + nom + hasValidContact + disponibilités
+- Devis : Requis = service + nom + hasValidContact
+- Question : Aucun champ requis
+
+🔚 CLÔTURE :
+userWantsToClose = TRUE si le patient dit "merci", "c'est tout", "non merci", "parfait", "ça ira", après un récapitulatif
+
+📧 ENVOI EMAIL :
+readyToSend = TRUE UNIQUEMENT si :
+- (intent = appointment OU quote) 
+- ET isComplete = true 
+- ET userWantsToClose = true
+
+Sois précis dans tes extractions. En cas de doute, mets null.`,
+      prompt: `Analyse cette conversation complète :
+
+${conversationText}
+
+---
+Dernière réponse de l'assistant : "${lastAssistantMessage}"
+Dernière réponse du patient : "${lastUserMessage}"
+
+Extrais toutes les informations et détermine l'état de la conversation.`,
+      temperature: 0.1 // Low temperature for consistent extraction
+    })
+
+    logger.info('AI Conversation Analysis:', {
+      intent: result.object.intent,
+      isComplete: result.object.isComplete,
+      userWantsToClose: result.object.userWantsToClose,
+      readyToSend: result.object.readyToSend,
+      patientInfo: result.object.patientInfo,
+      missingFields: result.object.missingFields,
+      reasoning: result.object.reasoning
+    })
+
+    return result.object
+  } catch (error) {
+    logger.error('Error in AI conversation analysis:', error)
+
+    // Fallback: return safe defaults
+    return {
+      intent: 'other',
+      patientInfo: {
+        nom: null,
+        email: null,
+        telephone: null,
+        service: null,
+        praticien: null,
+        disponibilites: null
+      },
+      hasValidContact: false,
+      isComplete: false,
+      missingFields: [],
+      userWantsToClose: false,
+      readyToSend: false,
+      reasoning: 'Error in AI analysis - using fallback'
+    }
   }
-  if (intent === 'quote') {
-    return Boolean(info.nom && (info.email || info.telephone) && info.service)
-  }
-  return false
 }
 
-// TODO: elargir la negation a merci, plus autres expresions.
-
-// Detect if user said "no" to closing question
-function isNegativeCloseAnswer(text: string): boolean {
-  const t = text.toLowerCase().trim()
-  return [
-    'non', 'non merci', 'c\'est bon', "c'est bon", 'ça ira', 'merci c\'est tout',
-    "merci c'est tout", 'parfait merci', 'tout bon', 'ça me va', 'aucune autre', 'merci', 'c bon'
-  ].some(p => t.includes(p))
-}
-
-// Detect if assistant asked closing question
-function assistantAskedClosing(messages: Array<{ role: string; content: string }>): boolean {
-  const lastAssistant = [...messages].reverse().find(m => m.role === 'assistant')?.content?.toLowerCase() || ''
-  return lastAssistant.includes("avez-vous besoin d'autre chose")
-}
-
-function extractPatientInfo(messages: Message[]): PatientInfo {
-  const info: PatientInfo = {}
-  const userMessages = messages.filter(m => m.role === 'user').map(m => m.content.toLowerCase())
-  
-  // Extract email
-  const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g
-  userMessages.forEach(msg => {
-    const emails = msg.match(emailRegex)
-    if (emails && !info.email) info.email = emails[0]
-  })
-  
-  // Extract phone
-  const phoneRegex = /(\+33|0)[1-9](?:[.\s-]?[0-9]{2}){4}/g
-  userMessages.forEach(msg => {
-    const phones = msg.match(phoneRegex)
-    if (phones && !info.telephone) info.telephone = phones[0].replace(/[\s.-]/g, '')
-  })
-  
-  // Extract name (look for patterns like "Je m'appelle X", "Mon nom est X", or simple "First Last")
-  const namePatterns = [
-    /(?:je m'appelle|mon nom est|je suis|c'est)\s+([A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+\s+[A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+)/i,
-    /^([A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+\s+[A-ZÀÂÄÉÈÊËÌÎÏÒÙÛÜ][a-zàâäéèêëìîïòùûüç]+)$/i // Simple "First Last" pattern
-  ]
-  userMessages.forEach(msg => {
-    if (!info.nom) {
-      for (const pattern of namePatterns) {
-        const match = msg.match(pattern)
-        if (match) {
-          info.nom = match[1]
-          break
-        }
-      }
-    }
-  })
-  
-  // Extract service (prioritize user messages to avoid false positives from assistant examples)
-  const userMessagesOnly = messages.filter(m => m.role === 'user').map(m => m.content.toLowerCase())
-  const services = ['contrôle', 'détartrage', 'implant', 'blanchiment', 'parodont', 'prothèse', 'conservateur', 'pédodontie', 'orthodontie', 'extraction', 'soin']
-  userMessagesOnly.forEach(msg => {
-    if (!info.service) {
-      for (const service of services) {
-        // Check for exact word match
-        if (msg.includes(' ' + service + ' ') || msg.includes(service + ' ') || msg.includes(' ' + service) || msg === service) {
-          info.service = service
-          break
-        }
-      }
-    }
-  })
-  
-  // Extract praticien
-  const praticiens = ['azma', 'chevalier', 'seguela', 'mercier', 'liotard', 'aumailley']
-  userMessages.forEach(msg => {
-    if (!info.praticien) {
-      for (const praticien of praticiens) {
-        if (msg.includes(praticien)) {
-          info.praticien = `Dr. ${praticien.charAt(0).toUpperCase() + praticien.slice(1)}`
-          break
-        }
-      }
-    }
-  })
-  
-  return info
-}
-
-// Extract disponibilities (concatenate all mentions of days/times)
-function extractDisponibilites(messages: Message[]): string {
-  const days = /(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)/i
-  const time = /\b(\d{1,2}h\d{0,2}|\d{1,2}:\d{2})\b/
-  const spans: string[] = []
-  for (const m of messages) {
-    if (m.role !== 'user') continue
-    const line = m.content
-    if (days.test(line) || time.test(line)) {
-      spans.push(line.trim())
-    }
-  }
-  return spans.slice(-3).join(' | ') // Keep last 3 mentions
-}
+// ==================== SITE CONTEXT FETCHING ====================
 
 export async function POST(request: NextRequest) {
   try {
     logger.info('POST /api/chat - starting')
-    
+
     // Check for API keys
     if (!process.env.MISTRAL_API_KEY) {
       logger.error('MISTRAL_API_KEY not configured')
@@ -217,7 +259,7 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     }
-    
+
     const body = await request.json()
     const { messages } = body
 
@@ -235,19 +277,16 @@ export async function POST(request: NextRequest) {
     const tomorrowDate = new Date();
     tomorrowDate.setDate(new Date().getDate() + 1);
     const tomorrow = tomorrowDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: timezone });
-    
+
     // Fetch site context
     const siteContext = await fetchSiteContext()
-    
+
     const systemPrompt = `${SYSTEM_PROMPT}
-    
+
     Aujourd'hui : ${todayDate}. Demain : ${tomorrow}.
-    
+
     CONTEXTE_SITE (extrait, priorité absolue si pertinent) :
 ${siteContext || '(indisponible)'}`;
-
-    // Count user messages BEFORE conversion (for email transcript)
-    const userMessagesCount = messages.filter((m: Message) => m.role === 'user').length
 
     logger.info('Converting messages, count:', messages.length)
 
@@ -268,63 +307,39 @@ ${siteContext || '(indisponible)'}`;
     })
 
     // Get the full response
-    let response = await result.text
+    const response = await result.text
+
+    // ========== AI-POWERED CONVERSATION ANALYSIS ==========
+    // Trust the AI completely - it handles validation, flow, and extraction
+    const fullMessages = [...messages, { role: 'assistant' as const, content: response }]
+    const analysis = await analyzeConversation(fullMessages)
     
-    // Post-process to avoid premature confirmations
-    // Replace overly affirmative expressions
-    response = response
-      .replace(/\bje\s+(note|retiens?|confirme|fixe)\b[^.]*\./gi, 
-        "Je transmettrai ces préférences au secrétariat qui vous recontactera.")
-      .replace(/\b(rendez[-\s]?vous|créneau)\s+(est\s+)?(fixé|confirmé|acté)\b[^.]*\./gi,
-        "Ce sont des préférences ; l'horaire définitif sera fixé avec le secrétariat.")
-      .replace(/(sms|e[-\s]?mail)\s+de\s+rappel\s+sera\s+envoyé[^.]*/gi,
-        "Vous serez recontacté·e pour convenir de l'horaire définitif.")
-    
-    // Remove random capitalized words at end (AI sometimes adds random names)
-    response = response.replace(/\.\s+([A-ZÀÂÄÉÈÊË][a-zàâäéèêëù]+)\s*\.(\s*\n|$)/g, '.$2')
-    
-    // Detect intent from conversation
-    const conversationText = [...messages.map((m: Message) => m.content), response].join(' ')
-    const intent = detectIntent(conversationText)
-    
-    // Extract patient info (with disponibilities using new function)
-    const fullMessages = [...messages, { role: 'assistant' as const, content: response, timestamp: new Date() }]
-    const patientInfo = extractPatientInfo(fullMessages)
-    patientInfo.disponibilites = extractDisponibilites(fullMessages) || patientInfo.disponibilites
-    
-    // Check if ready to send email
-    const lastUserMessage = messages.filter((m: Message) => m.role === 'user').slice(-1)[0]?.content || ''
-    
-    // Ready to send when: intent + all fields + user said "no thanks"
-    const hasFields = hasRequiredFields(intent, patientInfo)
-    const isNegative = isNegativeCloseAnswer(lastUserMessage)
-    const hasIntent = (intent === 'appointment' || intent === 'quote')
-    
-    // Ready to send only when user said "no" after all fields collected
-    const readyToSend = hasIntent && hasFields && isNegative
-    
-    logger.info('Email trigger check:', {
-      hasIntent,
-      hasFields,
-      isNegative,
-      readyToSend,
-      intent,
-      lastUserMessage,
-      patientInfo
+    logger.info('AI Analysis:', {
+      intent: analysis.intent,
+      isComplete: analysis.isComplete,
+      hasValidContact: analysis.hasValidContact,
+      userWantsToClose: analysis.userWantsToClose,
+      readyToSend: analysis.readyToSend,
+      patientInfo: analysis.patientInfo,
+      reasoning: analysis.reasoning
     })
-    
-    return NextResponse.json({ 
+
+    return NextResponse.json({
       response,
-      intent,
-      patientInfo,
-      readyToSend
+      intent: analysis.intent,
+      patientInfo: analysis.patientInfo,
+      readyToSend: analysis.readyToSend,
+      // Additional debug info
+      isComplete: analysis.isComplete,
+      missingFields: analysis.missingFields,
+      reasoning: analysis.reasoning
     })
   } catch (error) {
     logger.error('Error processing chat:', error)
     const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue'
     console.error('Full error:', error)
     return NextResponse.json(
-      { 
+      {
         error: 'Erreur lors du traitement de votre message',
         details: process.env.NODE_ENV !== 'production' ? errorMessage : undefined
       },
