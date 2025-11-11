@@ -108,7 +108,7 @@ export function ChatWidget() {
             intent: data.intent,
             patientInfo: data.patientInfo
           })
-          const emailResponse = await fetch('/api/chat/send-email', {
+          const emailResponse = await fetch('/api/email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
