@@ -93,7 +93,7 @@ export default function ContactPage() {
         </div>
 
         {/* Row 2 - Formulaire + Image */}
-        <div className="bg-white/60 rounded-lg overflow-hidden">
+        <div className="bg-white/60 overflow-hidden">
           <div className="flex flex-col lg:flex-row">
             
             {/* 2/3 - Formulaire */}
